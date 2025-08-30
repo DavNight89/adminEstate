@@ -1,0 +1,51 @@
+{
+  "properties": [
+    {
+      "id": 1,
+      "name": "Sunset Apartments",
+      "address": "123 Main St, City, State 12345",
+      "units": 24,
+      "occupied": 22,
+      "monthlyRevenue": 160000,
+      "type": "Apartment Complex"
+    },
+    {
+      "id": 2,
+      "name": "Oak Street Condos", 
+      "address": "456 Oak St, City, State 12345",
+      "units": 12,
+      "occupied": 10,
+      "monthlyRevenue": 320000,
+      "type": "Condominiums"
+    }
+  ],
+  "tenants": [
+    {
+      "id": 1,
+      "name": "Sam Watson",
+      "unit": "A101",
+      "property": "Sunset Apartments",
+      "rent": 2200,
+      "leaseEnd": "2025-12-31",
+      "status": "Current",
+      "phone": "(555) 123-4567",
+      "email": "john.smith@email.com",
+      "balance": 0,
+      "avatar": "JS"
+    }
+  ],
+  "workOrders": [
+    {
+      "id": 1,
+      "tenant": "Sam Watson",
+      "unit": "A101",
+      "property": "Sunset Apartments",
+      "issue": "Leaky faucet in kitchen",
+      "priority": "Medium",
+      "status": "In Progress",
+      "dateSubmitted": "2025-07-18",
+      "assignedTo": "Bob's Plumbing",
+      "estimatedCost": 150
+    }
+  ]
+}
