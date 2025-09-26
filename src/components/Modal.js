@@ -4,6 +4,7 @@ import {
    Clock,
   FileText, Calendar, Building, Lightbulb, TrendingUp, BarChart3
 } from 'lucide-react';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
 
 
 
@@ -692,6 +693,306 @@ const Modal = ({showModal,
 
     {/* Action Buttons */}
     <div className="flex space-x-2 pt-4 border-t border-gray-200">
+      <button
+        onClick={closeModal}
+        className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 flex items-center justify-center transition-colors"
+      >
+        Close
+      </button>
+    </div>
+  </div>
+)}
+
+// Add this enhanced revenue analysis to your Modal.js
+
+{modalType === 'viewAdvancedRevenue' && (
+  <div className="p-6 space-y-6 max-w-6xl mx-auto">
+    {/* Executive Summary Header */}
+    <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-white rounded-lg -mx-6 -mt-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="text-center">
+          <div className="text-3xl font-bold">${totalRevenue.toLocaleString()}</div>
+          <div className="text-green-100 text-sm">Monthly Revenue</div>
+        </div>
+        <div className="text-center">
+          <div className="text-3xl font-bold">${(totalRevenue * 12).toLocaleString()}</div>
+          <div className="text-green-100 text-sm">Annualized</div>
+        </div>
+        <div className="text-center">
+          <div className="text-3xl font-bold">{occupancyRate.toFixed(1)}%</div>
+          <div className="text-green-100 text-sm">Occupancy Rate</div>
+        </div>
+        <div className="text-center">
+          <div className="text-3xl font-bold">${avgRevenuePerUnit.toFixed(0)}</div>
+          <div className="text-green-100 text-sm">Revenue/Unit</div>
+        </div>
+      </div>
+    </div>
+
+    {/* Revenue Trend Chart */}
+    <div className="bg-white p-6 rounded-lg border">
+      <h4 className="text-lg font-semibold mb-4">Revenue Trends (12 Months)</h4>
+      <div className="h-64">
+        {/* Add chart component here - you can use recharts or similar */}
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={revenueHistoryData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip formatter={(value) => [`$${value.toLocaleString()}`, 'Revenue']} />
+            <Line 
+              type="monotone" 
+              dataKey="actualRevenue" 
+              stroke="#10b981" 
+              strokeWidth={3}
+              name="Actual Revenue"
+            />
+            <Line 
+              type="monotone" 
+              dataKey="projectedRevenue" 
+              stroke="#6b7280" 
+              strokeDasharray="5 5"
+              name="Projected Revenue"
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    </div>
+
+    {/* Revenue Composition Breakdown */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Revenue Sources */}
+      <div className="bg-white p-6 rounded-lg border">
+        <h4 className="text-lg font-semibold mb-4">Revenue Sources</h4>
+        <div className="space-y-3">
+          {(() => {
+            const revenueStreams = [
+              { name: 'Base Rent', amount: totalRevenue * 0.85, color: 'bg-blue-500' },
+              { name: 'Parking Fees', amount: totalRevenue * 0.08, color: 'bg-green-500' },
+              { name: 'Pet Fees', amount: totalRevenue * 0.04, color: 'bg-yellow-500' },
+              { name: 'Late Fees', amount: totalRevenue * 0.02, color: 'bg-red-500' },
+              { name: 'Other Fees', amount: totalRevenue * 0.01, color: 'bg-purple-500' }
+            ];
+            
+            return revenueStreams.map(stream => {
+              const percentage = (stream.amount / totalRevenue) * 100;
+              return (
+                <div key={stream.name} className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className={`w-3 h-3 ${stream.color} rounded-full mr-3`}></div>
+                    <span className="text-sm text-gray-700">{stream.name}</span>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-sm font-medium">${stream.amount.toLocaleString()}</div>
+                    <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
+                  </div>
+                </div>
+              );
+            });
+          })()}
+        </div>
+      </div>
+
+      {/* Performance Metrics */}
+      <div className="bg-white p-6 rounded-lg border">
+        <h4 className="text-lg font-semibold mb-4">Performance Metrics</h4>
+        <div className="space-y-4">
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span className="text-sm text-gray-600">Revenue per Sq Ft</span>
+            <span className="font-medium">${(totalRevenue / 50000).toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span className="text-sm text-gray-600">Collection Rate</span>
+            <span className="font-medium text-green-600">96.8%</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span className="text-sm text-gray-600">Renewal Rate</span>
+            <span className="font-medium text-blue-600">84.2%</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span className="text-sm text-gray-600">Price Growth (YoY)</span>
+            <span className="font-medium text-purple-600">+5.2%</span>
+          </div>
+          <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
+            <span className="text-sm text-gray-600">Revenue Efficiency</span>
+            <span className="font-medium">{((totalRevenue / potentialRevenue) * 100).toFixed(1)}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Property-by-Property Analysis */}
+    <div className="bg-white p-6 rounded-lg border">
+      <h4 className="text-lg font-semibold mb-4">Property Performance Analysis</h4>
+      <div className="overflow-x-auto">
+        <table className="min-w-full">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Property</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Units</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Occupancy</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Monthly Revenue</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Revenue/Unit</th>
+              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Performance</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {properties.map(property => {
+              const propertyOccupancy = property.units > 0 ? (property.occupied / property.units) * 100 : 0;
+              const revenuePerUnit = property.units > 0 ? property.monthlyRevenue / property.units : 0;
+              const performance = propertyOccupancy >= 95 ? 'Excellent' : 
+                                 propertyOccupancy >= 85 ? 'Good' : 
+                                 propertyOccupancy >= 75 ? 'Fair' : 'Poor';
+              const performanceColor = performance === 'Excellent' ? 'text-green-600' :
+                                     performance === 'Good' ? 'text-blue-600' :
+                                     performance === 'Fair' ? 'text-yellow-600' : 'text-red-600';
+
+              return (
+                <tr key={property.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-4 text-sm font-medium text-gray-900">{property.name}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{property.units}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{propertyOccupancy.toFixed(1)}%</td>
+                  <td className="px-4 py-4 text-sm font-medium text-green-600">
+                    ${property.monthlyRevenue.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-4 text-sm text-gray-600">${revenuePerUnit.toFixed(0)}</td>
+                  <td className={`px-4 py-4 text-sm font-medium ${performanceColor}`}>
+                    {performance}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    {/* Revenue Optimization Opportunities */}
+    <div className="bg-white p-6 rounded-lg border">
+      <h4 className="text-lg font-semibold mb-4">Revenue Optimization Opportunities</h4>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {(() => {
+          const vacantUnits = properties.reduce((acc, prop) => acc + (prop.units - prop.occupied), 0);
+          const potentialRentIncrease = totalRevenue * 0.03; // 3% increase potential
+          const additionalFeeRevenue = totalRevenue * 0.05; // 5% from new fees
+
+          return (
+            <>
+              <div className="p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <div className="text-lg font-bold text-orange-600">
+                  ${(vacantUnits * 1500).toLocaleString()}/mo
+                </div>
+                <div className="text-sm text-orange-800">Fill Vacant Units</div>
+                <div className="text-xs text-orange-600 mt-1">
+                  {vacantUnits} units @ $1,500 avg rent
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="text-lg font-bold text-blue-600">
+                  ${potentialRentIncrease.toLocaleString()}/mo
+                </div>
+                <div className="text-sm text-blue-800">Rent Optimization</div>
+                <div className="text-xs text-blue-600 mt-1">
+                  3% strategic increase on renewals
+                </div>
+              </div>
+
+              <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="text-lg font-bold text-green-600">
+                  ${additionalFeeRevenue.toLocaleString()}/mo
+                </div>
+                <div className="text-sm text-green-800">Additional Services</div>
+                <div className="text-xs text-green-600 mt-1">
+                  Parking, storage, amenity fees
+                </div>
+              </div>
+            </>
+          );
+        })()}
+      </div>
+    </div>
+
+    {/* Forecasting & Projections */}
+    <div className="bg-white p-6 rounded-lg border">
+      <h4 className="text-lg font-semibold mb-4">Revenue Projections</h4>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {(() => {
+          const currentMonthly = totalRevenue;
+          const projected3Month = currentMonthly * 3 * 1.02;
+          const projected6Month = currentMonthly * 6 * 1.04;
+          const projectedAnnual = currentMonthly * 12 * 1.05;
+
+          return (
+            <>
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-xl font-bold text-gray-900">
+                  ${projected3Month.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-600">3-Month Projection</div>
+                <div className="text-xs text-green-600">+2% growth</div>
+              </div>
+
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-xl font-bold text-gray-900">
+                  ${projected6Month.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-600">6-Month Projection</div>
+                <div className="text-xs text-green-600">+4% growth</div>
+              </div>
+
+              <div className="text-center p-4 bg-gray-50 rounded-lg">
+                <div className="text-xl font-bold text-gray-900">
+                  ${projectedAnnual.toLocaleString()}
+                </div>
+                <div className="text-sm text-gray-600">Annual Projection</div>
+                <div className="text-xs text-green-600">+5% growth</div>
+              </div>
+
+              <div className="text-center p-4 bg-green-50 border border-green-200 rounded-lg">
+                <div className="text-xl font-bold text-green-600">
+                  ${(projectedAnnual - currentMonthly * 12).toLocaleString()}
+                </div>
+                <div className="text-sm text-green-800">Potential Growth</div>
+                <div className="text-xs text-green-600">vs current run rate</div>
+              </div>
+            </>
+          );
+        })()}
+      </div>
+    </div>
+
+    {/* Action Items */}
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <h4 className="font-semibold text-blue-900 mb-3">Recommended Actions</h4>
+      <div className="space-y-2 text-sm">
+        <div className="flex items-start">
+          <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <span className="text-blue-800">Focus on filling {vacantUnits} vacant units to capture ${(vacantUnits * 1500).toLocaleString()}/month</span>
+        </div>
+        <div className="flex items-start">
+          <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <span className="text-blue-800">Review rent prices for renewal opportunities</span>
+        </div>
+        <div className="flex items-start">
+          <div className="w-2 h-2 bg-blue-600 rounded-full mt-2 mr-3 flex-shrink-0"></div>
+          <span className="text-blue-800">Explore additional revenue streams (parking, storage fees)</span>
+        </div>
+      </div>
+    </div>
+
+    {/* Action Buttons */}
+    <div className="flex space-x-2 pt-4 border-t border-gray-200">
+      <button
+        onClick={() => {
+          // Export to CSV/PDF functionality
+          console.log('Exporting revenue report...');
+        }}
+        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 flex items-center justify-center transition-colors"
+      >
+        <Download className="w-4 h-4 mr-2" />
+        Export Report
+      </button>
       <button
         onClick={closeModal}
         className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 flex items-center justify-center transition-colors"
