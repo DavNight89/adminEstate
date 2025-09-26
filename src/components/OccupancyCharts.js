@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Home, Key, Clock, DollarSign } from 'lucide-react';
 // Update your OccupancyCharts.js components to accept and use props:
 
-export const OccupancyMetrics = ({ properties = [], tenants = [] }) => {
+export const OccupancyMetrics = ({ properties, tenants }) => {
+  const [metrics, setMetrics] = useState({});
+
+  useEffect(() => {
+    // Recalculate metrics when data changes
+    const totalUnits = properties.reduce((acc, prop) => acc + (prop.units || 0), 0);
+    const occupiedUnits = properties.reduce((acc, prop) => acc + (prop.occupied || 0), 0);
+    const occupancyRate = totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0;
+
+    setMetrics({
+      totalUnits,
+      occupiedUnits,
+      vacantUnits: totalUnits - occupiedUnits,
+      occupancyRate
+    });
+  }, [properties, tenants]);
   // Calculate real metrics from props
   const totalUnits = properties.reduce((acc, prop) => acc + (prop.units || 0), 0);
   const occupiedUnits = properties.reduce((acc, prop) => acc + (prop.occupied || 0), 0);
