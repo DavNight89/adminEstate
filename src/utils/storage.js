@@ -6,28 +6,41 @@ export const saveToIndexedDB = async (storeName, data) => {
     
     request.onsuccess = () => {
       const db = request.result;
-      const transaction = db.transaction([storeName], 'readwrite');
-      const store = transaction.objectStore(storeName);
       
-      store.clear(); // Clear existing data
-      store.add({ id: 1, data: data });
+      // Check if store exists before trying to use it
+      if (!db.objectStoreNames.contains(storeName)) {
+        console.warn(`Store '${storeName}' doesn't exist in PropertyProDB`);
+        resolve(); // Don't fail, just skip
+        return;
+      }
       
-      transaction.oncomplete = () => resolve();
-      transaction.onerror = () => reject(transaction.error);
+      try {
+        const transaction = db.transaction([storeName], 'readwrite');
+        const store = transaction.objectStore(storeName);
+        
+        store.clear(); // Clear existing data
+        store.add({ id: 1, data: data });
+        
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error);
+      } catch (error) {
+        reject(error);
+      }
     };
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       
-      const storeNames = ['properties', 'tenants', 'workOrders', 'transactions'];
+      const storeNames = ['properties', 'tenants', 'workOrders', 'transactions', 'documents'];
     
       storeNames.forEach(name => {  
-      if (!db.objectStoreNames.contains(name)) {
-        db.createObjectStore(name, { keyPath: 'id' });
-      }
-    });
+        if (!db.objectStoreNames.contains(name)) {
+          db.createObjectStore(name, { keyPath: 'id' });
+        }
+      });
 
-    if (!db.objectStoreNames.contains(storeName)) {
+      // Also create the specific store if it's not in the default list
+      if (!storeNames.includes(storeName) && !db.objectStoreNames.contains(storeName)) {
         db.createObjectStore(storeName, { keyPath: 'id' });
       }
     };
@@ -59,17 +72,22 @@ export const loadFromIndexedDB = async (storeName) => {
       getRequest.onerror = () => reject(getRequest.error);
     };
 
-    request.onupgradeneeded = (event) => {  // ← Add event parameter
-      const db = event.target.result;      // ← Fix: use event.target.result
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
 
       // Create object stores for each data type
-      const storeNames = ['properties', 'tenants', 'workOrders', 'transactions'];
+      const storeNames = ['properties', 'tenants', 'workOrders', 'transactions', 'documents'];
 
       storeNames.forEach(name => {
         if (!db.objectStoreNames.contains(name)) {
           db.createObjectStore(name, { keyPath: 'id' });
         }
       });
+
+      // Also create the specific store if it's not in the default list
+      if (!storeNames.includes(storeName) && !db.objectStoreNames.contains(storeName)) {
+        db.createObjectStore(storeName, { keyPath: 'id' });
+      }
     };
   });
 };

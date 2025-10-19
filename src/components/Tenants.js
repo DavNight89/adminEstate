@@ -4,7 +4,7 @@ import { Plus, X, Users, Mail } from 'lucide-react';
 export const Tenants = ({ 
   tenants, 
   searchQuery, 
-  setTenantSearchQuery, 
+  setSearchQuery, 
   openModal 
 }) => {
     return (
@@ -23,6 +23,7 @@ export const Tenants = ({
             Add Tenant
           </button>
         </div>
+      
   
            {/* Show active search indicator */}
           {searchQuery && (
@@ -32,7 +33,7 @@ export const Tenants = ({
             Searching for: "<strong>{searchQuery}</strong>"
           </span>
           <button 
-            onClick={() => setTenantSearchQuery('')}
+            onClick={() => setSearchQuery('')}
             className="text-blue-600 hover:text-blue-800"
           >
             <X className="w-4 h-4" />

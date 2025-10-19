@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-10-17T22:07:50.087147",
+  "total_unique_properties": 4,
+  "duplicates_found": 7,
+  "properties_by_type": {
+    "residential": 2,
+    "condominiums": 2
+  },
+  "revenue_analysis": {
+    "total_monthly_revenue": 20000.0,
+    "total_purchase_price": 3800000.0,
+    "properties_with_revenue": 2
+  }
+}

@@ -9,7 +9,7 @@ import { useLocalStorage } from './hooks/useLocalStorage';
 import { usePropertyData } from './hooks/usePropertyData';
 
 // ===== KEEP ALL YOUR COMPONENTS =====
-import { Dashboard } from './components/Dashboard';
+import { Dashboard } from './components/dashboard/Dashboard';
 import { Financial } from './components/Financial';
 import { Analytics } from './components/Analytics';
 import { Communication } from './components/Communication';
@@ -30,6 +30,10 @@ const UserFriendlyPropertyApp = () => {
   const [transactionFilter, setTransactionFilter] = useLocalStorage('transactionFilter', 'all');
   const [dateRange, setDateRange] = useLocalStorage('dateRange', 'month');
 
+  // ===== FILTER STATE (for WorkOrders component) =====
+  const [filterStatus, setFilterStatus] = useLocalStorage('filterStatus', 'all');
+  const [filterPriority, setFilterPriority] = useLocalStorage('filterPriority', 'all');
+
   // ===== MODAL STATE (simple) =====
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
@@ -43,14 +47,18 @@ const UserFriendlyPropertyApp = () => {
     workOrders,
     transactions,
     documents,
-    addTenant,
-    addProperty,
     addTransaction,
-    updateTenant,
-    updateWorkOrder,
-    updateProperty,
     updateTransaction,
-    deleteTransaction
+    deleteTransaction,
+    addTenant,        // ✅ Add this
+    updateTenant,
+    deleteTenant,     // ✅ Add this
+    addProperty, 
+    updateProperty,     // ✅ Add this
+    deleteProperty,     // ✅ Add this
+    addWorkOrder,
+    updateWorkOrder,
+    deleteWorkOrder,
   } = usePropertyData();
 
   // ===== NAVIGATION TABS (all your components) =====
@@ -71,7 +79,34 @@ const UserFriendlyPropertyApp = () => {
     setModalType(type);
     setSelectedItem(item);
     setShowModal(true);
-  };
+
+    // ✅ Set initial form data based on modal type
+  if (type === 'addTransaction') {
+    setFormData({
+      type: 'income',
+      amount: '',
+      description: '',
+      date: new Date().toISOString().split('T')[0],
+      category: '',
+      property: '',
+      tenant: ''
+    });
+  } else if (type === 'editTransaction' && item) {
+    setFormData({
+      type: item.type || 'income',
+      amount: item.amount || '',
+      description: item.description || '',
+      date: item.date || new Date().toISOString().split('T')[0],
+      category: item.category || '',
+      property: item.property || '',
+      tenant: item.tenant || ''
+    });
+  } else {
+    setFormData({});
+  }
+  
+  setShowModal(true);
+};
 
   const closeModal = () => {
     setShowModal(false);
@@ -79,6 +114,72 @@ const UserFriendlyPropertyApp = () => {
     setModalType('');
     setFormData({});
   };
+
+const handleInputChange = (field, value) => {
+  // Handle both approaches
+  if (typeof field === 'string') {
+    // Direct field/value approach from Modal
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  } else {
+    const { name, value, type, checked } = field;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  }
+};
+
+// ===== ADD MISSING FORM SUBMISSION HANDLER =====
+const handleSubmit = (e) => {
+  e.preventDefault();
+  
+  switch (modalType) {
+    case 'addTransaction':
+      addTransaction(formData);
+      break;
+    case 'editTransaction':
+      updateTransaction(formData, selectedItem);
+      break;
+    case 'deleteTransaction':
+      deleteTransaction(selectedItem);
+      break;
+    case 'addTenant':
+      addTenant(formData);
+      break;
+    case 'editTenant':
+      updateTenant(formData, selectedItem);
+      break;
+    case 'deleteTenant':
+      deleteTenant(selectedItem);
+      break;
+    case 'addProperty':
+      addProperty(formData);
+      break;
+    case 'editProperty':
+      updateProperty(formData, selectedItem);
+      break;
+    case 'deleteProperty':
+      deleteProperty(selectedItem);
+      break;
+    case 'addWorkOrder':
+      addWorkOrder(formData);
+      break;
+    case 'editWorkOrder':
+      updateWorkOrder(formData, selectedItem);
+      break;
+    case 'deleteWorkOrder':
+      deleteWorkOrder(selectedItem);
+      break;
+    // Add more cases as needed
+    default:
+      console.log('Unhandled modal type:', modalType);
+  }
+  
+  closeModal();
+};
 
   const handleSearchChange = (value) => {
     setSearchQuery(value);
@@ -284,12 +385,28 @@ const getQuickStats = () => {
       openModal,
       setActiveTab,
       searchQuery,
+      setSearchQuery,
       showTips,
       setShowTips,
       getQuickStats,
       getComprehensiveFinancialStats,
       getExpenseCategories,
-      getDynamicNotifications
+      getDynamicNotifications,
+    handleInputChange,
+    handleSubmit,
+    formData,
+    setFormData,
+    selectedItem,
+    filterStatus,
+    setFilterStatus,
+    filterPriority,
+    setFilterPriority,
+    setSelectedItem,
+    modalType,
+    setModalType,
+    showModal,
+    setShowModal,
+    closeModal      
     };
 
     switch (activeTab) {
@@ -399,16 +516,20 @@ const getQuickStats = () => {
       {/* Modal */}
       {showModal && (
         <Modal 
-          showModal={showModal}
-          modalType={modalType}
-          closeModal={closeModal}
-          formData={formData}
-          setFormData={setFormData}
-          selectedItem={selectedItem}
-          properties={properties}
-          tenants={tenants}
-          addTransaction={addTransaction}
-          updateTransaction={updateTransaction}
+    showModal={showModal}
+    modalType={modalType}
+    closeModal={closeModal}
+    handleSubmit={handleSubmit}          
+    handleInputChange={handleInputChange}          
+    formData={formData}
+    setFormData={setFormData}
+    selectedItem={selectedItem}
+    properties={properties}
+    tenants={tenants}
+    addTransaction={addTransaction}
+    updateTransaction={updateTransaction}
+    addTenant={addTenant}           // ✅ Add this
+    updateTenant={updateTenant} 
         />
       )}
     </div>

@@ -1,17 +1,24 @@
 import React, { useState } from 'react';
 import { Upload, FileText, Folder, Search, Filter, Eye, Download, Trash2 } from 'lucide-react';
 
-export const Documents = ({ 
+export const Documents = ({
   documents: documentList = [], // ✅ Rename the prop to avoid conflict
-  properties = [], 
-  tenants = [], 
-  workOrders = [], 
-  setActiveTab, 
-  openModal 
+  properties = [],
+  tenants = [],
+  workOrders = [],
+  setActiveTab,
+  openModal,
+  handleDocumentUpload,
+  deleteDocument
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showUploadModal, setShowUploadModal] = useState(false);
+  const [uploadFormData, setUploadFormData] = useState({
+    category: 'lease',
+    property: 'All Properties',
+    file: null
+  });
 
   // Simple document categories - now using documentList
   const categories = [
@@ -29,6 +36,38 @@ export const Documents = ({
     const matchesCategory = selectedCategory === 'all' || doc.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Handle upload form submission
+  const handleUploadSubmit = () => {
+    if (!uploadFormData.file) {
+      alert('Please select a file to upload');
+      return;
+    }
+
+    if (handleDocumentUpload) {
+      handleDocumentUpload({
+        file: uploadFormData.file,
+        category: uploadFormData.category,
+        property: uploadFormData.property
+      });
+    }
+
+    // Reset form and close modal
+    setUploadFormData({
+      category: 'lease',
+      property: 'All Properties',
+      file: null
+    });
+    setShowUploadModal(false);
+  };
+
+  // Handle file input change
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setUploadFormData({ ...uploadFormData, file });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -162,13 +201,23 @@ export const Documents = ({
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <div className="flex space-x-2">
-                          <button className="text-blue-600 hover:text-blue-900">
+                          <button
+                            title="View document"
+                            className="text-blue-600 hover:text-blue-900"
+                          >
                             <Eye className="w-4 h-4" />
                           </button>
-                          <button className="text-green-600 hover:text-green-900">
+                          <button
+                            title="Download document"
+                            className="text-green-600 hover:text-green-900"
+                          >
                             <Download className="w-4 h-4" />
                           </button>
-                          <button className="text-red-600 hover:text-red-900">
+                          <button
+                            onClick={() => deleteDocument && deleteDocument(doc.id)}
+                            title="Delete document"
+                            className="text-red-600 hover:text-red-900"
+                          >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
@@ -193,36 +242,50 @@ export const Documents = ({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Category
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                  <option>Lease Agreement</option>
-                  <option>Maintenance Record</option>
-                  <option>Financial Document</option>
-                  <option>Legal Document</option>
+                <select
+                  value={uploadFormData.category}
+                  onChange={(e) => setUploadFormData({ ...uploadFormData, category: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="lease">Lease Agreement</option>
+                  <option value="maintenance">Maintenance Record</option>
+                  <option value="financial">Financial Document</option>
+                  <option value="legal">Legal Document</option>
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Property
                 </label>
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                <select
+                  value={uploadFormData.property}
+                  onChange={(e) => setUploadFormData({ ...uploadFormData, property: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
                   <option>All Properties</option>
                   {properties.map(property => (
-                    <option key={property.id} value={property.id}>
+                    <option key={property.id} value={property.name}>
                       {property.name}
                     </option>
                   ))}
                 </select>
               </div>
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   File
                 </label>
                 <input
                   type="file"
+                  onChange={handleFileChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
+                {uploadFormData.file && (
+                  <p className="text-sm text-gray-600 mt-1">
+                    Selected: {uploadFormData.file.name}
+                  </p>
+                )}
               </div>
             </div>
             
@@ -234,7 +297,7 @@ export const Documents = ({
                 Cancel
               </button>
               <button
-                onClick={() => setShowUploadModal(false)}
+                onClick={handleUploadSubmit}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
                 Upload

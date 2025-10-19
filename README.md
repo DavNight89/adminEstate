@@ -68,3 +68,54 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+## 🐍 Python Backend
+
+This project includes a **Python backend** with advanced data processing capabilities:
+
+### Quick Start (Backend):
+```bash
+cd backend-python
+
+# Set up virtual environment (best practice)
+python -m venv venv
+.\venv\Scripts\Activate.ps1  # Windows PowerShell
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run DataFrame backend (Flask)
+python app_frontend_compatible.py
+```
+
+### Features:
+- 📊 **Pandas DataFrames** - Advanced data manipulation
+- 🔄 **Real-time Sync** - Live frontend updates
+- 📈 **Analytics** - Portfolio analysis and reporting
+- ✅ **Frontend Compatible** - Uses same field names as React app
+- 🔧 **Best Practices** - Virtual environment, proper dependencies
+
+**Backend API:** http://localhost:5000
+**Detailed docs:** See `backend-python/README.md`
+
+## git tips
+
+adding new files
+```
+git add . 
+```
+
+adding modified files
+```
+git add -u
+```
+
+committing changes
+```
+git commit -m "[enter your commit message]"
+```
+
+pushing to github
+```
+git push 
+```

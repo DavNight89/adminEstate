@@ -2,11 +2,9 @@ import React from 'react';
 import { 
   X, MapPin, DollarSign, Users, Edit,
    Clock,
-  FileText, Calendar, Building, Lightbulb, TrendingUp, BarChart3
+  FileText, Calendar, Building, Lightbulb, TrendingUp, BarChart3, Download
 } from 'lucide-react';
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts';
-
-
 
 
 const Modal = ({showModal, 
@@ -24,14 +22,26 @@ const Modal = ({showModal,
 }) => {
   if (!showModal) return null;
 
+    // ✅ Calculate values using ONLY real data from your properties and tenants
+  const totalRevenue = properties.reduce((acc, prop) => acc + (prop.monthlyRevenue || 0), 0);
+  const totalUnits = properties.reduce((acc, prop) => acc + (prop.units || 0), 0);
+  const occupiedUnits = properties.reduce((acc, prop) => acc + (prop.occupied || 0), 0);
+  const vacantUnits = totalUnits - occupiedUnits;
+  const occupancyRate = totalUnits > 0 ? (occupiedUnits / totalUnits) * 100 : 0;
+  const avgRevenuePerUnit = occupiedUnits > 0 ? totalRevenue / occupiedUnits : 0;
+  const potentialRevenue = totalUnits * avgRevenuePerUnit; // Based on actual average, not assumed
+
+  // ✅ Real revenue history from actual data (no mock data)
+  const revenueHistoryData = [
+    { month: 'Current', actualRevenue: totalRevenue, projectedRevenue: totalRevenue }
+  ];
+
   return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
     <div className={`bg-white rounded-xl shadow-xl w-full mx-4 overflow-y-auto ${
-      modalType === 'viewMonthlyRevenue' || modalType === 'viewOccupancyRate' || modalType === 'viewPropertiesOverview' || modalType === 'viewTotalUnits'
+(modalType === 'viewMonthlyRevenue' || modalType === 'viewOccupancyRate' || modalType === 'viewPropertiesOverview' || modalType === 'viewTotalUnits')
         ? 'max-w-6xl max-h-[95vh]'  // ← Large modals
-        : 'max-w-md max-h-[90vh]' 
-        ? 'w-full max-w-7xl max-h-[95vh]'  // ← Even larger for detailed modals
-        : 'w-full max-w-md max-h-[90vh]'  // ← Standard modals
+        : 'max-w-md max-h-[90vh]'   // ← Standard modals // ← Standard modals
     }`}>
         
         {/* Header with Modal Title */}
@@ -702,8 +712,6 @@ const Modal = ({showModal,
     </div>
   </div>
 )}
-
-// Add this enhanced revenue analysis to your Modal.js
 
 {modalType === 'viewAdvancedRevenue' && (
   <div className="p-6 space-y-6 max-w-6xl mx-auto">
@@ -2037,13 +2045,13 @@ const Modal = ({showModal,
              }} className="p-6 space-y-4">
             
 {modalType === 'addTenant' && (
-              <>
-                <div>
+            <>          
+               <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                   <input 
                     type="text"
                     value={formData.name || ''}
-                    onChange={(e) => handleInputChange('name', e.target.value)} 
+                    onChange={(e) => handleInputChange('name', e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors" 
                     placeholder="Enter tenant's full name"
                     required 
@@ -2086,7 +2094,7 @@ const Modal = ({showModal,
                  {properties.map(prop => (
                   <option key={prop.id} value={prop.id}>{prop.name}</option>
   ))}
-             </select>
+               </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Unit Number *</label>

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, BarChart3, PieChart, Users, Building,
-  RefreshCw, Calendar, Download, Filter
+  RefreshCw, Calendar, Download, Filter, Zap
 } from 'lucide-react';
+import { PandasAnalytics } from './PandasAnalytics';
 
 export const Analytics = ({ properties = [], tenants = [] }) => {
+  const [usePandas, setUsePandas] = useState(true);
   const [analyticsData, setAnalyticsData] = useState({});
   const [lastUpdated, setLastUpdated] = useState(new Date());
 
@@ -54,13 +56,40 @@ export const Analytics = ({ properties = [], tenants = [] }) => {
     setLastUpdated(new Date());
   };
 
+  // Use enhanced Pandas Analytics if enabled
+  if (usePandas) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <button
+            onClick={() => setUsePandas(false)}
+            className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-2"
+            title="Switch to Legacy Analytics"
+          >
+            <Zap className="w-4 h-4" />
+            Switch to Legacy Mode
+          </button>
+        </div>
+        
+        <PandasAnalytics onRefresh={refreshData} />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h2>
-          <p className="text-gray-600">Detailed insights into your property portfolio</p>
+          <h2 className="text-2xl font-bold text-gray-900">Analytics Dashboard (Legacy)</h2>
+          <p className="text-gray-600">Basic insights into your property portfolio</p>
+          <button
+            onClick={() => setUsePandas(true)}
+            className="mt-2 text-sm text-blue-600 hover:text-blue-700 flex items-center gap-2"
+          >
+            <Zap className="w-4 h-4" />
+            Upgrade to Pandas Analytics
+          </button>
         </div>
         
         <div className="flex items-center gap-4">
