@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   TrendingUp, BarChart3, PieChart, Users, Building,
   RefreshCw, Calendar, Download, Filter, Target, Award, Zap
@@ -49,11 +49,56 @@ export const PandasAnalytics = ({ onRefresh }) => {
   };
 
   useEffect(() => {
-    fetchPandasAnalytics();
+    // Sync localStorage to backend first, then fetch analytics
+    syncLocalStorageToBackend();
+  }, [syncLocalStorageToBackend]);
+
+  const syncLocalStorageToBackend = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // Get all data from localStorage
+      const localStorageData = {
+        properties: JSON.parse(localStorage.getItem('properties') || '[]'),
+        tenants: JSON.parse(localStorage.getItem('tenants') || '[]'),
+        workOrders: JSON.parse(localStorage.getItem('workOrders') || '[]'),
+        transactions: JSON.parse(localStorage.getItem('transactions') || '[]'),
+        documents: JSON.parse(localStorage.getItem('documents') || '[]')
+      };
+
+      console.log('🔄 Syncing localStorage to backend...', {
+        properties: localStorageData.properties.length,
+        tenants: localStorageData.tenants.length,
+        workOrders: localStorageData.workOrders.length,
+        transactions: localStorageData.transactions.length
+      });
+
+      // Sync to backend
+      const response = await fetch('http://localhost:5000/api/sync/localstorage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(localStorageData)
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        console.log('✅ Sync successful!', result);
+        // Refresh analytics after sync
+        await fetchPandasAnalytics();
+      } else {
+        console.error('❌ Sync failed:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ Error syncing data:', error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
   const handleRefresh = () => {
-    fetchPandasAnalytics();
+    // Sync localStorage first, then fetch analytics
+    syncLocalStorageToBackend();
     if (onRefresh) onRefresh();
   };
 

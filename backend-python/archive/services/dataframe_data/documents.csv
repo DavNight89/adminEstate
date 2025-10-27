@@ -1,0 +1,2 @@
+id,name,type,category,property_id,tenant_id,file_path,file_size,mime_type,created_at
+c9c54a7c-7ac6-4e6e-8170-145dbcb89e27,Lease Agreement - John DataFrame,pdf,lease,3d9d6605-5af0-4c68-8bf8-962193a361eb,0bd0d3b8-a980-4cb3-8050-5b79b2d4f713,/uploads/lease_john_dataframe.pdf,245760,application/pdf,2025-10-18T22:08:41.631437

@@ -1,0 +1,2 @@
+id,property_id,tenant_id,type,amount,description,date,category,payment_method,created_at
+707d1b45-214f-43e2-8b26-a73ddecd15e0,3d9d6605-5af0-4c68-8bf8-962193a361eb,0bd0d3b8-a980-4cb3-8050-5b79b2d4f713,income,1500.0,Monthly rent payment,2025-10-18,rent,bank_transfer,2025-10-18T22:08:41.628551

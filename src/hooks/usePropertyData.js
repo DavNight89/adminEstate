@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { safeLocalStorage, loadFromIndexedDB, saveToIndexedDB } from '../utils/storage';
 import initialData from '../data.json';
 import apiService from '../services/apiService';
+import { documentService } from '../services/documentService';
 
 export const usePropertyData = () => {
   // ===== DATA STATE =====
@@ -40,63 +41,61 @@ export const usePropertyData = () => {
 
   const syncLocalDataToBackend = async (properties, tenants, workOrders, transactions) => {
     try {
-      console.log('🔄 Starting sync of your existing data to backend...');
+      console.log('🔄 Starting BULK sync of localStorage to backend...');
       
-      // Sync properties
-      if (properties.length > 0) {
-        for (const property of properties) {
-          try {
-            await apiService.createProperty(property);
-            console.log(`✅ Synced property: ${property.name}`);
-          } catch (error) {
-            console.log(`⚠️ Failed to sync property ${property.name}:`, error.message);
-          }
-        }
+      // Use new bulk sync endpoint instead of individual API calls
+      const localStorageData = {
+        properties: properties || [],
+        tenants: tenants || [],
+        workOrders: workOrders || [],
+        transactions: transactions || [],
+        documents: [] // Add documents when available
+      };
+      
+      console.log('📦 Sending bulk data:', {
+        properties: localStorageData.properties.length,
+        tenants: localStorageData.tenants.length,
+        workOrders: localStorageData.workOrders.length,
+        transactions: localStorageData.transactions.length
+      });
+      
+      const response = await apiService.syncLocalStorageData(localStorageData);
+      
+      if (response.success) {
+        console.log('✅ BULK SYNC SUCCESS:', response.message);
+        console.log('📊 Sync Results:', response.sync_results);
+        return true;
+      } else {
+        console.error('❌ BULK SYNC FAILED:', response.error);
+        return false;
       }
-
-      // Sync tenants
-      if (tenants.length > 0) {
-        for (const tenant of tenants) {
-          try {
-            await apiService.createTenant(tenant);
-            console.log(`✅ Synced tenant: ${tenant.name}`);
-          } catch (error) {
-            console.log(`⚠️ Failed to sync tenant ${tenant.name}:`, error.message);
-          }
-        }
-      }
-
-      // Sync work orders
-      if (workOrders.length > 0) {
-        for (const workOrder of workOrders) {
-          try {
-            await apiService.createWorkOrder(workOrder);
-            console.log(`✅ Synced work order: ${workOrder.title}`);
-          } catch (error) {
-            console.log(`⚠️ Failed to sync work order ${workOrder.title}:`, error.message);
-          }
-        }
-      }
-
-      // Sync transactions
-      if (transactions.length > 0) {
-        for (const transaction of transactions) {
-          try {
-            await apiService.createTransaction(transaction);
-            console.log(`✅ Synced transaction: ${transaction.description}`);
-          } catch (error) {
-            console.log(`⚠️ Failed to sync transaction:`, error.message);
-          }
-        }
-      }
-
-      console.log('🎉 Local data sync to backend completed!');
-      setIsOnline(true);
       
     } catch (error) {
-      console.log('❌ Backend sync failed - your data remains safe locally:', error.message);
-      setIsOnline(false);
-    }
+        console.error('❌ BULK SYNC ERROR:', error);
+        
+        // Fallback: Try individual property sync for critical data
+        if (properties && properties.length > 0) {
+          console.log('🔄 Fallback: Trying individual property sync...');
+          let synced = 0;
+          for (const property of properties) {
+            try {
+              await apiService.createProperty(property);
+              synced++;
+            } catch (e) {
+              console.log(`⚠️ Failed to sync ${property.name}:`, e.message);
+            }
+          }
+          if (synced > 0) {
+            console.log(`✅ Fallback sync: ${synced}/${properties.length} properties synced`);
+            setIsOnline(true);
+            return true;
+          }
+        }
+        
+        console.log('❌ All sync methods failed - data remains safe locally');
+        setIsOnline(false);
+        return false;
+      }
   };
 
   // ===== LOAD INITIAL DATA =====
@@ -260,6 +259,7 @@ export const usePropertyData = () => {
     loadInitialData();
   }, []);
 
+
   // ===== SYNC PROPERTIES WITH TENANTS =====
   useEffect(() => {
     if (tenants.length >= 0 && properties.length > 0) {
@@ -387,25 +387,30 @@ export const usePropertyData = () => {
 
   const addTenant = async (newTenant) => {
     const selectedProperty = properties.find(p => p.id == newTenant.property);
+    const timestamp = new Date().toISOString();
 
-    const newTenantData = { 
-      ...newTenant, 
+    const newTenantData = {
+      ...newTenant,
       id: Date.now(),
       avatar: newTenant.name.split(' ').map(n => n[0]).join(''),
       status: 'Current',
       balance: 0,
       unit: newTenant.unit,
       property: selectedProperty?.name || 'Unknown Property',
-      rent: parseFloat(newTenant.rent) || 0
+      rent: parseFloat(newTenant.rent) || 0,
+      created_at: timestamp,
+      updated_at: timestamp
     };
 
     try {
       // Try backend API first
-      const apiTenant = await apiService.createTenant(newTenantData);
-      console.log('✅ Tenant created on backend:', apiTenant);
-      
+      const apiResponse = await apiService.createTenant(newTenantData);
+      console.log('✅ Tenant created on backend:', apiResponse);
+
+      // Unwrap API response if it has a wrapper structure
+      const apiTenant = apiResponse.data || apiResponse;
       const backendTenant = apiTenant.id ? apiTenant : { ...apiTenant, id: newTenantData.id };
-      
+
       setTenants(prev => {
         const updatedTenants = [...prev, backendTenant];
         safeLocalStorage.setItem('tenants', JSON.stringify(updatedTenants));
@@ -456,10 +461,12 @@ export const usePropertyData = () => {
       return;
     }
 
+    const timestamp = new Date().toISOString();
+
     setTenants(prev => {
-      const updatedTenants = prev.map(tenant => 
-        tenant.id === selectedItem.id 
-          ? { ...tenant, ...updatedTenant }
+      const updatedTenants = prev.map(tenant =>
+        tenant.id === selectedItem.id
+          ? { ...tenant, ...updatedTenant, updated_at: timestamp }
           : tenant
       );
 
@@ -629,29 +636,58 @@ export const usePropertyData = () => {
   };
 
   // ===== DOCUMENT FUNCTIONS =====
-  const addDocument = (fileData) => {
+  const addDocument = async (fileData) => {
     const { file, category, property } = fileData;
 
-    if (!file) return;
+    if (!file) {
+      console.error('No file provided');
+      return;
+    }
 
-    // Create document object
-    const newDocument = {
-      id: Date.now().toString(),
-      name: file.name,
-      type: file.type || file.name.split('.').pop().toUpperCase(),
-      size: file.size,
-      category: category || 'general',
-      property: property || 'All Properties',
-      dateAdded: new Date().toISOString(),
-      uploadedBy: 'Current User'
-    };
+    try {
+      // Convert file to base64 for storage
+      const fileContent = await documentService.fileToBase64(file);
 
-    // Update documents state
-    const updatedDocuments = [...documents, newDocument];
-    setDocuments(updatedDocuments);
-    saveToIndexedDB('documents', updatedDocuments);
+      if (!fileContent) {
+        console.error('Failed to convert file to base64');
+        return;
+      }
 
-    return newDocument;
+      // Create document object with file content
+      const newDocument = {
+        id: Date.now().toString(),
+        name: file.name,
+        type: file.type || file.name.split('.').pop().toUpperCase(),
+        size: file.size,
+        category: category || 'general',
+        property: property || 'All Properties',
+        dateAdded: new Date().toISOString(),
+        uploadedBy: 'Current User',
+        fileContent: fileContent,  // ✅ Save the actual file content
+        url: fileContent  // ✅ Also set URL for compatibility
+      };
+
+      // Update documents state
+      const updatedDocuments = [...documents, newDocument];
+      setDocuments(updatedDocuments);
+      
+      // Save to local storage
+      safeLocalStorage.setItem('documents', JSON.stringify(updatedDocuments));
+      saveToIndexedDB('documents', updatedDocuments);
+
+      // Try to sync with backend
+      try {
+        await apiService.addDocument(newDocument);
+        console.log('✅ Document uploaded to backend successfully');
+      } catch (error) {
+        console.log('🔌 Backend offline, document stored locally only');
+      }
+
+      return newDocument;
+    } catch (error) {
+      console.error('❌ Error uploading document:', error);
+      return null;
+    }
   };
 
   const deleteDocument = (documentId) => {

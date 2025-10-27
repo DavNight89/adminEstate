@@ -1,0 +1,2 @@
+id,name,address,type,units,occupied,monthlyRevenue,purchasePrice,created_at,updated_at
+3d9d6605-5af0-4c68-8bf8-962193a361eb,Integration Test Apartments,123 DataFrame Ave,residential,24,18,36000.0,2400000.0,2025-10-18T22:08:41.558477,2025-10-18T22:08:41.558485

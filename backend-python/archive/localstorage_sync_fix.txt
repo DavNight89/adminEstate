@@ -1,0 +1,105 @@
+#!/usr/bin/env python3
+"""
+LocalStorage Sync Fix for React ↔ Flask Integration
+==================================================
+
+This fixes the localStorage sync issues by:
+1. Adding proper error handling to API calls
+2. Creating a reliable sync endpoint that accepts localStorage data
+3. Ensuring data.json stays synchronized
+"""
+
+# ADD THIS TO app_frontend_compatible.py
+
+# New endpoint to handle bulk localStorage sync
+@app.route('/api/sync/localstorage', methods=['POST'])
+def sync_localstorage_data():
+    """Accept localStorage data and sync it to backend systems"""
+    try:
+        data = request.json
+        
+        if not data:
+            return jsonify({'success': False, 'error': 'No data provided'}), 400
+        
+        # Extract data from localStorage format
+        properties = data.get('properties', [])
+        tenants = data.get('tenants', [])
+        work_orders = data.get('workOrders', [])
+        transactions = data.get('transactions', [])
+        documents = data.get('documents', [])
+        
+        print(f"🔄 Received localStorage sync request:")
+        print(f"  📊 Properties: {len(properties)}")
+        print(f"  👥 Tenants: {len(tenants)}")
+        print(f"  🔧 Work Orders: {len(work_orders)}")
+        print(f"  💰 Transactions: {len(transactions)}")
+        print(f"  📄 Documents: {len(documents)}")
+        
+        sync_results = {
+            'properties': {'synced': 0, 'errors': 0},
+            'tenants': {'synced': 0, 'errors': 0},
+            'workOrders': {'synced': 0, 'errors': 0},
+            'transactions': {'synced': 0, 'errors': 0},
+            'documents': {'synced': 0, 'errors': 0}
+        }
+        
+        # Sync properties to CSV and data.json
+        if properties:
+            try:
+                # Add each property to DataFrame service
+                for prop in properties:
+                    try:
+                        df_service.add_property(prop)
+                        sync_results['properties']['synced'] += 1
+                    except Exception as e:
+                        print(f"❌ Failed to sync property {prop.get('name', 'Unknown')}: {e}")
+                        sync_results['properties']['errors'] += 1
+                
+                # Trigger data.json sync
+                sync_service.sync_csv_to_json()
+                print(f"✅ Synced {sync_results['properties']['synced']} properties to backend")
+                
+            except Exception as e:
+                print(f"❌ Properties sync error: {e}")
+                return jsonify({'success': False, 'error': f'Properties sync failed: {e}'}), 500
+        
+        # For now, other entities are stored in data.json but not processed
+        # This can be enhanced later when you implement full entity support
+        
+        # Update data.json with all localStorage data
+        try:
+            frontend_data_path = Path(__file__).parent.parent / 'src' / 'data.json'
+            
+            # Preserve existing structure while updating with localStorage data
+            existing_data = {}
+            if frontend_data_path.exists():
+                with open(frontend_data_path, 'r') as f:
+                    existing_data = json.load(f)
+            
+            # Update with localStorage data
+            updated_data = {
+                'properties': properties,
+                'tenants': tenants,
+                'workOrders': work_orders,
+                'transactions': transactions,
+                'documents': documents
+            }
+            
+            with open(frontend_data_path, 'w') as f:
+                json.dump(updated_data, f, indent=2, default=str)
+            
+            print(f"✅ Updated data.json with localStorage data")
+            
+        except Exception as e:
+            print(f"❌ data.json update error: {e}")
+        
+        return jsonify({
+            'success': True,
+            'message': 'localStorage data synced successfully',
+            'sync_results': sync_results,
+            'timestamp': datetime.now().isoformat()
+        })
+        
+    except Exception as e:
+        print(f"❌ LocalStorage sync error: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500

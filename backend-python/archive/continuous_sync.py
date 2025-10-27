@@ -25,7 +25,7 @@ class ContinuousDataSync:
         self.frontend_dir = self.backend_dir.parent / 'src'
         
         self.data_json_path = self.frontend_dir / 'data.json'
-        self.properties_csv_path = self.backend_dir / 'dataframe_data_compatible' / 'properties.csv'
+        self.properties_csv_path = self.backend_dir / 'dataframe_data' / 'properties.csv'
         
         # Track file hashes to detect changes
         self.last_json_hash = None

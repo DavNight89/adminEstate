@@ -1,0 +1,5 @@
+id,name,address,type,units,occupied,monthlyRevenue,purchasePrice,created_at,updated_at
+87e253b9-9081-4f8a-bac4-3420d66bf184,Frontend Compatible Property,123 Compatible St,residential,20,0,15000.0,800000.0,2025-10-08T12:34:56.735646,2025-10-19T00:47:20.488680
+723f3c52-0ffb-40d3-9c88-7a73d5f188aa,Xiamen Estates,"888 18th St N Shangton, Beibei",condominiums,18,0,0.0,2000000.0,2025-10-13T18:42:34.432374,2025-10-19T00:47:20.488690
+8020cc43-fea1-41ab-a11c-e371316115dd,Sunset Apartments,123 Main St,residential,10,0,0.0,0.0,2025-10-14T10:03:40.990724,2025-10-19T00:47:20.488698
+0505734f-1f56-4d3b-8e53-6fc8895fd355,Casa Zai,"222 17th St. N Gusta, Mi",condominiums,20,1,5000.0,1000000.0,2025-10-14T10:03:41.081147,2025-10-19T00:47:20.488709

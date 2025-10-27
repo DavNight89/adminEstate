@@ -1,0 +1,54 @@
+{
+  "properties": [
+    {
+      "id": "87e253b9-9081-4f8a-bac4-3420d66bf184",
+      "name": "Frontend Compatible Property",
+      "address": "123 Compatible St",
+      "type": "residential",
+      "units": 20,
+      "occupied": 0,
+      "monthlyRevenue": 15000.0,
+      "purchasePrice": 800000.0,
+      "created_at": "2025-10-08T12:34:56.735646",
+      "updated_at": "2025-10-19T20:54:30.914642"
+    },
+    {
+      "id": "723f3c52-0ffb-40d3-9c88-7a73d5f188aa",
+      "name": "Xiamen Estates",
+      "address": "888 18th St N Shangton, Beibei",
+      "type": "condominiums",
+      "units": 18,
+      "occupied": 0,
+      "monthlyRevenue": 0.0,
+      "purchasePrice": 2000000.0,
+      "created_at": "2025-10-13T18:42:34.432374",
+      "updated_at": "2025-10-19T20:54:30.914657"
+    },
+    {
+      "id": "8020cc43-fea1-41ab-a11c-e371316115dd",
+      "name": "Sunset Apartments",
+      "address": "123 Main St",
+      "type": "residential",
+      "units": 10,
+      "occupied": 0,
+      "monthlyRevenue": 0.0,
+      "purchasePrice": 0.0,
+      "created_at": "2025-10-14T10:03:40.990724",
+      "updated_at": "2025-10-19T20:54:30.914666"
+    },
+    {
+      "id": "0505734f-1f56-4d3b-8e53-6fc8895fd355",
+      "name": "Casa Zai",
+      "address": "222 17th St. N Gusta, Mi",
+      "type": "condominiums",
+      "units": 20,
+      "occupied": 1,
+      "monthlyRevenue": 5000.0,
+      "purchasePrice": 1000000.0,
+      "created_at": "2025-10-14T10:03:41.081147",
+      "updated_at": "2025-10-19T20:54:30.914673"
+    }
+  ],
+  "tenants": [],
+  "workOrders": []
+}

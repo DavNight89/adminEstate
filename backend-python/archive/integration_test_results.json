@@ -1,0 +1,72 @@
+{
+  "property_id": "3d9d6605-5af0-4c68-8bf8-962193a361eb",
+  "tenant_id": "0bd0d3b8-a980-4cb3-8050-5b79b2d4f713",
+  "workorder_id": "caa16462-47a6-4364-b439-7327b4e32fc9",
+  "transaction_id": "707d1b45-214f-43e2-8b26-a73ddecd15e0",
+  "document_id": "c9c54a7c-7ac6-4e6e-8170-145dbcb89e27",
+  "analytics": {
+    "properties": {
+      "total": 1,
+      "total_units": 24,
+      "total_occupied": 18,
+      "occupancy_rate": 75.0,
+      "total_value": 2400000.0,
+      "monthly_revenue": 36000.0
+    },
+    "tenants": {
+      "total": 1,
+      "active": 1,
+      "total_rent": 1500.0
+    },
+    "workorders": {
+      "total": 1,
+      "pending": 1,
+      "in_progress": 0,
+      "completed": 0,
+      "total_cost": 0.0
+    },
+    "transactions": {
+      "total": 1,
+      "total_income": 1500.0,
+      "total_expenses": 0.0,
+      "net_income": 1500.0
+    }
+  },
+  "overview": {
+    "entities": {
+      "properties": 1,
+      "tenants": 1,
+      "workorders": 1,
+      "transactions": 1,
+      "documents": 1
+    },
+    "files": {
+      "properties": {
+        "path": "C:\\Users\\davio\\houzi-app\\backend-python\\services\\dataframe_data\\properties.csv",
+        "exists": true,
+        "size_kb": 0.26
+      },
+      "tenants": {
+        "path": "C:\\Users\\davio\\houzi-app\\backend-python\\services\\dataframe_data\\tenants.csv",
+        "exists": true,
+        "size_kb": 0.28
+      },
+      "workorders": {
+        "path": "C:\\Users\\davio\\houzi-app\\backend-python\\services\\dataframe_data\\workorders.csv",
+        "exists": true,
+        "size_kb": 0.39
+      },
+      "transactions": {
+        "path": "C:\\Users\\davio\\houzi-app\\backend-python\\services\\dataframe_data\\transactions.csv",
+        "exists": true,
+        "size_kb": 0.29
+      },
+      "documents": {
+        "path": "C:\\Users\\davio\\houzi-app\\backend-python\\services\\dataframe_data\\documents.csv",
+        "exists": true,
+        "size_kb": 0.32
+      }
+    },
+    "last_updated": "2025-10-18T22:08:41.651742"
+  }
+}

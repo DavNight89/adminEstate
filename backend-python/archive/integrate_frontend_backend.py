@@ -7,7 +7,7 @@ This script solves the mismatch between React UI data (data.json) and Flask back
 
 Issues:
 - React UI reads from empty data.json (empty arrays)  
-- Flask backend has property data in dataframe_data_compatible/
+- Flask backend has property data in dataframe_data/
 - No synchronization between them
 
 Solutions:
@@ -30,7 +30,7 @@ class FrontendBackendIntegrator:
         self.backend_dir = os.path.dirname(os.path.abspath(__file__))
         self.frontend_dir = os.path.join(os.path.dirname(self.backend_dir), 'src')
         self.data_json_path = os.path.join(self.frontend_dir, 'data.json')
-        self.flask_csv_path = os.path.join(self.backend_dir, 'dataframe_data_compatible', 'properties.csv')
+        self.flask_csv_path = os.path.join(self.backend_dir, 'dataframe_data', 'properties.csv')
         self.flask_api_url = 'http://localhost:5000/api/properties'
         
     def print_status(self):

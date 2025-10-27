@@ -31,7 +31,7 @@ class DataJsonCsvIntegrator:
         
         # File paths
         self.data_json_path = self.frontend_dir / 'data.json'
-        self.properties_csv_path = self.backend_dir / 'dataframe_data_compatible' / 'properties.csv'
+        self.properties_csv_path = self.backend_dir / 'dataframe_data' / 'properties.csv'
         self.backup_dir = self.backend_dir / 'integration_backups'
         
         # Create backup directory

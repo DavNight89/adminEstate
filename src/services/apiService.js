@@ -232,6 +232,13 @@ class ApiService {
     });
   }
 
+  async addDocument(document) {
+    return await apiService.request('/api/documents', {
+      method: 'POST',
+      body: document
+    });
+  }
+
   // Utility methods
   async healthCheck() {
     return this.request('/api/health');
@@ -241,6 +248,14 @@ class ApiService {
     return this.request('/api/sync', {
       method: 'POST',
       body: data,
+    });
+  }
+
+  // NEW: Bulk localStorage sync endpoint
+  async syncLocalStorageData(localStorageData) {
+    return this.request('/api/sync/localstorage', {
+      method: 'POST',
+      body: localStorageData,
     });
   }
 }

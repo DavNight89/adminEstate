@@ -7,8 +7,8 @@
       "type": "residential",
       "units": 20,
       "occupied": 0,
-      "monthlyRevenue": 15000.0,
-      "purchasePrice": 800000.0,
+      "monthlyRevenue": 0,
+      "purchasePrice": 800000,
       "created_at": "2025-10-08T12:34:56.735646",
       "updated_at": "2025-10-17T22:07:50.072791"
     },
@@ -18,9 +18,9 @@
       "address": "888 18th St N Shangton, Beibei",
       "type": "condominiums",
       "units": 18,
-      "occupied": 0,
-      "monthlyRevenue": 0.0,
-      "purchasePrice": 2000000.0,
+      "occupied": 3,
+      "monthlyRevenue": 12686,
+      "purchasePrice": 2000000,
       "created_at": "2025-10-13T18:42:34.432374",
       "updated_at": "2025-10-17T22:07:50.072980"
     },
@@ -31,8 +31,8 @@
       "type": "residential",
       "units": 10,
       "occupied": 0,
-      "monthlyRevenue": 0.0,
-      "purchasePrice": 0.0,
+      "monthlyRevenue": 0,
+      "purchasePrice": 0,
       "created_at": "2025-10-14T10:03:40.990724",
       "updated_at": "2025-10-17T22:07:50.073110"
     },
@@ -42,13 +42,148 @@
       "address": "222 17th St. N Gusta, Mi",
       "type": "condominiums",
       "units": 20,
-      "occupied": 1,
-      "monthlyRevenue": 5000.0,
-      "purchasePrice": 1000000.0,
+      "occupied": 3,
+      "monthlyRevenue": 12880,
+      "purchasePrice": 1000000,
       "created_at": "2025-10-14T10:03:41.081147",
       "updated_at": "2025-10-17T22:07:50.073227"
+    },
+    {
+      "name": "Saibot's Porperties",
+      "address": "718 15th St S Underworld, Haven",
+      "type": "Townhouse",
+      "units": 15,
+      "purchasePrice": 3000000,
+      "id": 1760847750921,
+      "occupied": 1,
+      "monthlyRevenue": 6000
     }
   ],
-  "tenants": [],
-  "workOrders": []
+  "tenants": [
+    {
+      "name": "Farah Celente",
+      "email": "farah@casazai.com",
+      "phone": "567-8912",
+      "property": "Casa Zai",
+      "unit": "1",
+      "rent": 4680,
+      "leaseEnd": "2034-03-19",
+      "id": 1760821806878,
+      "avatar": "FC",
+      "status": "Current",
+      "balance": 0
+    },
+    {
+      "name": "Liu Sun",
+      "email": "liu@xiamenestates.com",
+      "phone": "578-9513",
+      "property": "Xiamen Estates",
+      "unit": "1",
+      "rent": 5000,
+      "leaseEnd": "2031-04-15",
+      "id": 1760847318747,
+      "avatar": "LS",
+      "status": "Current",
+      "balance": 0
+    },
+    {
+      "name": "Witney Maria",
+      "email": "witney@casazai.com",
+      "phone": "467-9231",
+      "property": "Casa Zai",
+      "unit": "2",
+      "rent": 4200,
+      "leaseEnd": "2031-05-19",
+      "id": 1760848209749,
+      "avatar": "WM",
+      "status": "Current",
+      "balance": 0
+    },
+    {
+      "name": "Hades Flame",
+      "email": "hades@saibotsproperties.com",
+      "phone": "798-6161",
+      "property": "Saibot's Porperties",
+      "unit": "1",
+      "rent": 6000,
+      "leaseEnd": "2066-02-19",
+      "id": 1760924535111,
+      "avatar": "HF",
+      "status": "Current",
+      "balance": 0
+    },
+    {
+      "avatar": "SS",
+      "balance": 0,
+      "created_at": "2025-10-22T23:28:09.117417",
+      "email": "sonya@casazai.com",
+      "id": 1761193689073,
+      "leaseEnd": "2031-02-27",
+      "name": "Sonya Sun",
+      "phone": "379-1752",
+      "property": "Casa Zai",
+      "rent": 4000,
+      "status": "Current",
+      "unit": "10",
+      "updated_at": "2025-10-22T23:28:09.117713"
+    },
+    {
+      "avatar": "ZB",
+      "balance": 0,
+      "created_at": "2025-10-23T00:01:47.169734",
+      "email": "zoe@xiamenestates.com",
+      "id": 1761195707132,
+      "leaseEnd": "2037-03-19",
+      "name": "Zoe Bei",
+      "phone": "888-3791",
+      "property": "Xiamen Estates",
+      "rent": 3888,
+      "status": "Current",
+      "unit": "18",
+      "updated_at": "2025-10-23T00:01:47.169745"
+    },
+    {
+      "avatar": "PF",
+      "balance": 0,
+      "created_at": "2025-10-25T17:28:48.755Z",
+      "email": "phoenix@xiamenestates.com",
+      "id": 1761413328756,
+      "leaseEnd": "2037-07-04",
+      "name": "Phoenix Flamefeather",
+      "phone": "379-3478",
+      "property": "Xiamen Estates",
+      "rent": 3798,
+      "status": "Current",
+      "unit": "15",
+      "updated_at": "2025-10-25T12:28:48.865184"
+    }
+  ],
+  "workOrders": [
+    {
+      "property": "Casa Zai",
+      "tenant": "Farah Celente",
+      "unit": "1",
+      "issue": "new cabinets",
+      "priority": "Low",
+      "category": "general",
+      "id": 1760924591223,
+      "status": "Open",
+      "dateSubmitted": "2025-10-20"
+    }
+  ],
+  "transactions": [
+    {
+      "type": "expense",
+      "amount": 1200,
+      "description": "plumbing ",
+      "date": "2025-10-27",
+      "category": "",
+      "property": "Saibot's Porperties",
+      "tenant": "",
+      "unit": "1",
+      "id": 1761588998528,
+      "status": "completed"
+    }
+  ],
+  "documents": []
 }

@@ -1,0 +1,26 @@
+{
+  "timestamp": "2025-10-18T22:28:02.682982",
+  "consolidation_summary": {
+    "unified_directory": "dataframe_data/",
+    "removed_directory": "dataframe_data_compatible/",
+    "properties_consolidated": 4,
+    "services_updated": true,
+    "backups_created": true
+  },
+  "final_structure": {
+    "dataframe_data/": {
+      "properties.csv": "Unified properties data",
+      "tenants.csv": "All tenant records",
+      "workorders.csv": "All work orders",
+      "transactions.csv": "All transactions",
+      "documents.csv": "All document records"
+    }
+  },
+  "benefits": [
+    "Single source of truth for all data",
+    "No more directory confusion",
+    "Simplified maintenance",
+    "All entities in one place",
+    "Frontend compatibility maintained"
+  ]
+}

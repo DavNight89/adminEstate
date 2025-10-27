@@ -6,7 +6,7 @@ export const GettingStarted = ({ openModal, setShowTips }) => {
     <div className="bg-white border-2 border-dashed border-gray-300 rounded-xl p-8 text-center">
       <div className="max-w-md mx-auto">
         <Home className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-        <h3 className="text-xl font-semibold text-gray-900 mb-2">Get Started with PropertyPro</h3>
+        <h3 className="text-xl font-semibold text-gray-900 mb-2">Start with adminEstate</h3>
         <p className="text-gray-600 mb-6">Add your first property to begin managing your real estate portfolio</p>
         <div className="space-y-3">
           <button 

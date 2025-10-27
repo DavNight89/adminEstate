@@ -13,7 +13,7 @@ from datetime import datetime
 class DuplicatePreventionManager:
     """Manages duplicate prevention and analysis for the property DataFrame"""
     
-    def __init__(self, csv_path: str = "dataframe_data_compatible/properties.csv"):
+    def __init__(self, csv_path: str = "dataframe_data/properties.csv"):
         self.csv_path = Path(csv_path)
         self.setup_logging()
         

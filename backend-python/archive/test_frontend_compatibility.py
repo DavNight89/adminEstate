@@ -14,7 +14,7 @@ class FrontendCompatibleDataFrameService:
     Field names: monthlyRevenue, purchasePrice (NOT value)
     """
     
-    def __init__(self, data_dir: str = "dataframe_data_compatible"):
+    def __init__(self, data_dir: str = "dataframe_data"):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(exist_ok=True)
         

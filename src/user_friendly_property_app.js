@@ -471,7 +471,7 @@ const getQuickStats = () => {
               <div className="p-2 bg-blue-600 rounded-lg mr-3">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">PropertyPro</h1>
+              <h1 className="text-xl font-bold text-gray-900">adminEstate</h1>
             </div>
             
             <div className="hidden md:flex flex-1 max-w-md mx-6">

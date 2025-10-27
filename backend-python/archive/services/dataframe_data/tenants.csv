@@ -1,0 +1,2 @@
+id,name,email,phone,property_id,unit,rent,deposit,lease_start,lease_end,status,created_at
+0bd0d3b8-a980-4cb3-8050-5b79b2d4f713,John DataFrame,john@dataframe.com,555-0123,3d9d6605-5af0-4c68-8bf8-962193a361eb,A101,1500.0,3000.0,2025-01-01,2025-12-31,active,2025-10-18T22:08:41.618735

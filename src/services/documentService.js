@@ -1,5 +1,5 @@
 // Document Service - Handles all document-related operations
-import * as pdfjsLib from 'pdfjs-dist/build/pdf';
+import * as pdfjsLib from 'pdfjs-dist';
 import Tesseract from 'tesseract.js';
 
 // Configure PDF.js worker

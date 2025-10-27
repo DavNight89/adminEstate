@@ -1,0 +1,2 @@
+id,title,description,property_id,tenant_id,unit,priority,status,category,estimated_cost,actual_cost,created_at,updated_at,completed_at
+caa16462-47a6-4364-b439-7327b4e32fc9,Fix DataFrame Kitchen Sink,Leaky faucet in unit A101,3d9d6605-5af0-4c68-8bf8-962193a361eb,0bd0d3b8-a980-4cb3-8050-5b79b2d4f713,A101,medium,pending,plumbing,150.0,0.0,2025-10-18T22:08:41.622269,2025-10-18T22:08:41.622278,
