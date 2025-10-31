@@ -135,7 +135,7 @@ export const ReportCharts = ({ reportData, reportType, properties = [], tenants 
               cy="50%"
               labelLine={false}
               label={({name, percent}) => `${name}: ${(percent * 80).toFixed(0)}%`}
-              outerRadius={60}
+              outerRadius={75}
               fill="#8884d8"
               dataKey="value"
             >

@@ -33,7 +33,8 @@ def read_data():
             'tenants': [],
             'workOrders': [],
             'transactions': [],
-            'documents': []
+            'documents': [],
+            'applications': []
         }
 
 def write_data(data):
@@ -436,6 +437,273 @@ def analytics_correlations():
         return jsonify({'success': True, 'data': correlation_matrix})
     except Exception as e:
         print(f"Error in analytics_correlations: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# ===== APPLICATIONS ENDPOINTS =====
+@app.route('/api/applications', methods=['GET'])
+def get_applications():
+    """Get all tenant applications with optional filters"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        # Optional filters
+        status = request.args.get('status')
+        property_id = request.args.get('propertyId')
+        search = request.args.get('search')
+
+        # Apply filters
+        if status:
+            applications = [a for a in applications if a.get('status') == status]
+
+        if property_id:
+            applications = [a for a in applications if a.get('propertyId') == property_id]
+
+        if search:
+            search_lower = search.lower()
+            applications = [
+                a for a in applications
+                if search_lower in a.get('firstName', '').lower()
+                or search_lower in a.get('lastName', '').lower()
+                or search_lower in a.get('email', '').lower()
+                or search_lower in a.get('propertyName', '').lower()
+            ]
+
+        return jsonify({
+            'success': True,
+            'data': applications,
+            'count': len(applications)
+        })
+    except Exception as e:
+        print(f"Error in get_applications: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications/<int:application_id>', methods=['GET'])
+def get_application(application_id):
+    """Get specific application by ID"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        application = next((a for a in applications if a.get('id') == application_id), None)
+
+        if not application:
+            return jsonify({'success': False, 'error': 'Application not found'}), 404
+
+        return jsonify({
+            'success': True,
+            'data': application
+        })
+    except Exception as e:
+        print(f"Error in get_application: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications', methods=['POST'])
+def create_application():
+    """Submit new tenant application"""
+    try:
+        data = read_data()
+        new_application = request.json
+
+        # Generate ID if not present
+        if 'id' not in new_application:
+            new_application['id'] = int(datetime.now().timestamp() * 1000)
+
+        # Set timestamps and defaults
+        if 'status' not in new_application:
+            new_application['status'] = 'submitted'
+
+        if 'submittedDate' not in new_application:
+            new_application['submittedDate'] = datetime.now().isoformat()
+
+        new_application['createdAt'] = datetime.now().isoformat()
+        new_application['updatedAt'] = datetime.now().isoformat()
+
+        # Initialize empty arrays if not present
+        if 'documents' not in new_application:
+            new_application['documents'] = []
+
+        # Ensure applications array exists
+        if 'applications' not in data:
+            data['applications'] = []
+
+        data['applications'].append(new_application)
+
+        if write_data(data):
+            # TODO: Send confirmation email here
+            return jsonify({
+                'success': True,
+                'data': new_application,
+                'message': 'Application submitted successfully'
+            }), 201
+        else:
+            return jsonify({'success': False, 'error': 'Failed to save application'}), 500
+
+    except Exception as e:
+        print(f"Error in create_application: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications/<int:application_id>', methods=['PUT'])
+def update_application(application_id):
+    """Update application (status, review, etc.)"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        # Find application index
+        app_index = next((i for i, a in enumerate(applications) if a.get('id') == application_id), None)
+
+        if app_index is None:
+            return jsonify({'success': False, 'error': 'Application not found'}), 404
+
+        # Update application
+        update_data = request.json
+        applications[app_index].update(update_data)
+        applications[app_index]['updatedAt'] = datetime.now().isoformat()
+
+        # If status changed to approved/rejected, set review date
+        if 'status' in update_data and update_data['status'] in ['approved', 'rejected']:
+            if 'reviewedDate' not in applications[app_index]:
+                applications[app_index]['reviewedDate'] = datetime.now().isoformat()
+
+        data['applications'] = applications
+
+        if write_data(data):
+            return jsonify({
+                'success': True,
+                'data': applications[app_index],
+                'message': 'Application updated successfully'
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Failed to update application'}), 500
+
+    except Exception as e:
+        print(f"Error in update_application: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications/<int:application_id>', methods=['DELETE'])
+def delete_application(application_id):
+    """Delete application"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        # Find and remove application
+        initial_count = len(applications)
+        applications = [a for a in applications if a.get('id') != application_id]
+
+        if len(applications) == initial_count:
+            return jsonify({'success': False, 'error': 'Application not found'}), 404
+
+        data['applications'] = applications
+
+        if write_data(data):
+            return jsonify({
+                'success': True,
+                'message': 'Application deleted successfully'
+            })
+        else:
+            return jsonify({'success': False, 'error': 'Failed to delete application'}), 500
+
+    except Exception as e:
+        print(f"Error in delete_application: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications/<int:application_id>/convert', methods=['POST'])
+def convert_application_to_tenant(application_id):
+    """Convert approved application to active tenant"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        # Find application
+        app_index = next((i for i, a in enumerate(applications) if a.get('id') == application_id), None)
+
+        if app_index is None:
+            return jsonify({'success': False, 'error': 'Application not found'}), 404
+
+        application = applications[app_index]
+
+        # Check if application is approved
+        if application.get('status') != 'approved':
+            return jsonify({'success': False, 'error': 'Only approved applications can be converted'}), 400
+
+        # Create tenant from application data
+        new_tenant = {
+            'id': int(datetime.now().timestamp() * 1000),
+            'name': f"{application.get('firstName')} {application.get('lastName')}",
+            'email': application.get('email'),
+            'phone': application.get('phone'),
+            'property': application.get('propertyName'),
+            'unit': application.get('desiredUnit', ''),
+            'rent': application.get('monthlyIncome', 0) / 3,  # Estimate based on income
+            'leaseEnd': application.get('desiredMoveInDate'),  # TODO: Calculate based on lease term
+            'status': 'Current',
+            'balance': 0,
+            'avatar': f"{application.get('firstName', 'T')[0]}{application.get('lastName', 'T')[0]}",
+            'created_at': datetime.now().isoformat(),
+            'updated_at': datetime.now().isoformat()
+        }
+
+        # Add tenant to data
+        if 'tenants' not in data:
+            data['tenants'] = []
+        data['tenants'].append(new_tenant)
+
+        # Update application with tenant ID
+        applications[app_index]['tenantId'] = new_tenant['id']
+        applications[app_index]['updatedAt'] = datetime.now().isoformat()
+        data['applications'] = applications
+
+        if write_data(data):
+            return jsonify({
+                'success': True,
+                'data': new_tenant,
+                'message': 'Application converted to tenant successfully'
+            }), 201
+        else:
+            return jsonify({'success': False, 'error': 'Failed to convert application'}), 500
+
+    except Exception as e:
+        print(f"Error in convert_application_to_tenant: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+@app.route('/api/applications/stats', methods=['GET'])
+def get_application_stats():
+    """Get application statistics"""
+    try:
+        data = read_data()
+        applications = data.get('applications', [])
+
+        if not applications:
+            return jsonify({
+                'success': True,
+                'data': {
+                    'total': 0,
+                    'submitted': 0,
+                    'screening': 0,
+                    'approved': 0,
+                    'rejected': 0,
+                    'withdrawn': 0
+                }
+            })
+
+        # Count by status
+        stats = {
+            'total': len(applications),
+            'submitted': len([a for a in applications if a.get('status') == 'submitted']),
+            'screening': len([a for a in applications if a.get('status') == 'screening']),
+            'approved': len([a for a in applications if a.get('status') == 'approved']),
+            'rejected': len([a for a in applications if a.get('status') == 'rejected']),
+            'withdrawn': len([a for a in applications if a.get('status') == 'withdrawn'])
+        }
+
+        return jsonify({
+            'success': True,
+            'data': stats
+        })
+    except Exception as e:
+        print(f"Error in get_application_stats: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':

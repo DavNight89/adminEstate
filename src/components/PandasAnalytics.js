@@ -48,11 +48,6 @@ export const PandasAnalytics = ({ onRefresh }) => {
     }
   };
 
-  useEffect(() => {
-    // Sync localStorage to backend first, then fetch analytics
-    syncLocalStorageToBackend();
-  }, [syncLocalStorageToBackend]);
-
   const syncLocalStorageToBackend = useCallback(async () => {
     try {
       setLoading(true);
@@ -63,14 +58,16 @@ export const PandasAnalytics = ({ onRefresh }) => {
         tenants: JSON.parse(localStorage.getItem('tenants') || '[]'),
         workOrders: JSON.parse(localStorage.getItem('workOrders') || '[]'),
         transactions: JSON.parse(localStorage.getItem('transactions') || '[]'),
-        documents: JSON.parse(localStorage.getItem('documents') || '[]')
+        documents: JSON.parse(localStorage.getItem('documents') || '[]'),
+        applications: JSON.parse(localStorage.getItem('applications') || '[]')
       };
 
       console.log('🔄 Syncing localStorage to backend...', {
         properties: localStorageData.properties.length,
         tenants: localStorageData.tenants.length,
         workOrders: localStorageData.workOrders.length,
-        transactions: localStorageData.transactions.length
+        transactions: localStorageData.transactions.length,
+        applications: localStorageData.applications.length
       });
 
       // Sync to backend
@@ -95,6 +92,11 @@ export const PandasAnalytics = ({ onRefresh }) => {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    // Sync localStorage to backend first, then fetch analytics
+    syncLocalStorageToBackend();
+  }, [syncLocalStorageToBackend]);
 
   const handleRefresh = () => {
     // Sync localStorage first, then fetch analytics

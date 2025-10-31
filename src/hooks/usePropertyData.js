@@ -11,6 +11,8 @@ export const usePropertyData = () => {
   const [workOrders, setWorkOrders] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [documents, setDocuments] = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [screenings, setScreenings] = useState([]);
 
   // ===== API STATUS STATE =====
   const [isOnline, setIsOnline] = useState(true);
@@ -39,24 +41,26 @@ export const usePropertyData = () => {
     return isNetworkIssue;
   };
 
-  const syncLocalDataToBackend = async (properties, tenants, workOrders, transactions) => {
+  const syncLocalDataToBackend = async (properties, tenants, workOrders, transactions, applications) => {
     try {
       console.log('🔄 Starting BULK sync of localStorage to backend...');
-      
+
       // Use new bulk sync endpoint instead of individual API calls
       const localStorageData = {
         properties: properties || [],
         tenants: tenants || [],
         workOrders: workOrders || [],
         transactions: transactions || [],
-        documents: [] // Add documents when available
+        documents: [], // Add documents when available
+        applications: applications || []
       };
-      
+
       console.log('📦 Sending bulk data:', {
         properties: localStorageData.properties.length,
         tenants: localStorageData.tenants.length,
         workOrders: localStorageData.workOrders.length,
-        transactions: localStorageData.transactions.length
+        transactions: localStorageData.transactions.length,
+        applications: localStorageData.applications.length
       });
       
       const response = await apiService.syncLocalStorageData(localStorageData);
@@ -110,13 +114,17 @@ export const usePropertyData = () => {
         const savedWorkOrders = safeLocalStorage.getItem('workOrders');
         const savedTransactions = safeLocalStorage.getItem('transactions');
         const savedDocuments = safeLocalStorage.getItem('documents');
+        const savedApplications = safeLocalStorage.getItem('applications');
+        const savedScreenings = safeLocalStorage.getItem('screenings');
 
         console.log('🔍 Found your existing data:', {
           properties: savedProperties ? JSON.parse(savedProperties).length : 0,
           tenants: savedTenants ? JSON.parse(savedTenants).length : 0,
           workOrders: savedWorkOrders ? JSON.parse(savedWorkOrders).length : 0,
           transactions: savedTransactions ? JSON.parse(savedTransactions).length : 0,
-          documents: savedDocuments ? JSON.parse(savedDocuments).length : 0
+          documents: savedDocuments ? JSON.parse(savedDocuments).length : 0,
+          applications: savedApplications ? JSON.parse(savedApplications).length : 0,
+          screenings: savedScreenings ? JSON.parse(savedScreenings).length : 0
         });
 
         // If you have existing data, use it AND sync to backend
@@ -128,6 +136,8 @@ export const usePropertyData = () => {
           const localWorkOrders = savedWorkOrders ? JSON.parse(savedWorkOrders) : [];
           const localTransactions = savedTransactions ? JSON.parse(savedTransactions) : [];
           const localDocuments = savedDocuments ? JSON.parse(savedDocuments) : [];
+          const localApplications = savedApplications ? JSON.parse(savedApplications) : [];
+          const localScreenings = savedScreenings ? JSON.parse(savedScreenings) : [];
 
           // Set data immediately for display
           setProperties(localProperties);
@@ -135,10 +145,12 @@ export const usePropertyData = () => {
           setWorkOrders(localWorkOrders);
           setTransactions(localTransactions);
           setDocuments(localDocuments);
+          setApplications(localApplications);
+          setScreenings(localScreenings);
 
           // Sync your existing data to backend in background
           console.log('🔄 Syncing your existing data to backend...');
-          syncLocalDataToBackend(localProperties, localTenants, localWorkOrders, localTransactions);
+          syncLocalDataToBackend(localProperties, localTenants, localWorkOrders, localTransactions, localApplications);
           
           return; // Your data loaded and syncing started
         }
@@ -146,18 +158,20 @@ export const usePropertyData = () => {
         // Only try backend API if you have NO existing data
         console.log('📥 No existing data found, trying backend API...');
         try {
-          const [apiProperties, apiTenants, apiWorkOrders, apiTransactions] = await Promise.all([
+          const [apiProperties, apiTenants, apiWorkOrders, apiTransactions, apiApplications] = await Promise.all([
             apiService.getProperties().catch(() => null),
             apiService.getTenants().catch(() => null),
             apiService.getWorkOrders().catch(() => null),
-            apiService.getTransactions().catch(() => null)
+            apiService.getTransactions().catch(() => null),
+            apiService.getApplications().catch(() => null)
           ]);
 
           console.log('🌐 API Response:', {
             properties: apiProperties?.length || 0,
             tenants: apiTenants?.length || 0,
             workOrders: apiWorkOrders?.length || 0,
-            transactions: apiTransactions?.length || 0
+            transactions: apiTransactions?.length || 0,
+            applications: apiApplications?.length || 0
           });
 
           // If API returns data, use it and sync to local storage
@@ -195,6 +209,15 @@ export const usePropertyData = () => {
           // Documents are local-only for now
           setDocuments([]);
           safeLocalStorage.setItem('documents', JSON.stringify([]));
+
+          // Load applications from API
+          if (apiApplications && apiApplications.length > 0) {
+            setApplications(apiApplications);
+            safeLocalStorage.setItem('applications', JSON.stringify(apiApplications));
+          } else {
+            setApplications([]);
+            safeLocalStorage.setItem('applications', JSON.stringify([]));
+          }
 
           console.log('✅ Data loaded from backend API successfully');
           return; // Success - exit early
@@ -248,7 +271,13 @@ export const usePropertyData = () => {
           safeLocalStorage.setItem('documents', JSON.stringify([]));
         }
 
-
+        const indexedApplications = await loadFromIndexedDB('applications');
+        if (indexedApplications && indexedApplications.length > 0) {
+          setApplications(indexedApplications);
+        } else {
+          setApplications(initialData.applications || []);
+          safeLocalStorage.setItem('applications', JSON.stringify(initialData.applications || []));
+        }
 
         console.log('✅ Initial data loaded successfully');
       } catch (error) {
@@ -696,6 +725,175 @@ export const usePropertyData = () => {
     saveToIndexedDB('documents', updatedDocuments);
   };
 
+  // ===== APPLICATION FUNCTIONS =====
+  const addApplication = async (newApplication) => {
+    const timestamp = new Date().toISOString();
+
+    const application = {
+      ...newApplication,
+      id: Date.now(),
+      status: newApplication.status || 'submitted',
+      submittedDate: timestamp,
+      lastUpdated: timestamp
+    };
+
+    try {
+      // Try backend API first
+      const apiApplication = await apiService.createApplication(application);
+      console.log('✅ Application created on backend:', apiApplication);
+
+      const backendApplication = apiApplication.id ? apiApplication : { ...apiApplication, id: application.id };
+
+      setApplications(prev => {
+        const updatedApplications = [...prev, backendApplication];
+        safeLocalStorage.setItem('applications', JSON.stringify(updatedApplications));
+        console.log('Application synced with backend:', backendApplication);
+        return updatedApplications;
+      });
+
+    } catch (error) {
+      console.log('⚠️ Backend unavailable, saving application locally:', error.message);
+
+      // Fallback to local storage only
+      setApplications(prev => {
+        const updatedApplications = [...prev, application];
+
+        if (!safeLocalStorage.setItem('applications', JSON.stringify(updatedApplications))) {
+          saveToIndexedDB('applications', updatedApplications)
+            .then(() => console.log('✅ Application saved to IndexedDB as fallback'))
+            .catch(err => console.error('❌ Both localStorage and IndexedDB failed:', err));
+        }
+
+        console.log('Application saved locally:', application);
+        return updatedApplications;
+      });
+    }
+  };
+
+  const updateApplication = async (updatedApplication, selectedItem) => {
+    if (!selectedItem) {
+      console.error('No selected item provided for application update');
+      return;
+    }
+
+    const timestamp = new Date().toISOString();
+
+    const processedApplication = {
+      ...selectedItem,
+      ...updatedApplication,
+      id: selectedItem.id,
+      lastUpdated: timestamp
+    };
+
+    try {
+      // Try backend API first
+      const apiApplication = await apiService.updateApplication(selectedItem.id, processedApplication);
+      console.log('✅ Application updated on backend:', apiApplication);
+
+      const backendApplication = apiApplication.id ? apiApplication : processedApplication;
+
+      setApplications(prev => {
+        const updated = prev.map(app =>
+          app.id === selectedItem.id ? backendApplication : app
+        );
+        safeLocalStorage.setItem('applications', JSON.stringify(updated));
+        console.log('✅ Application synced with backend:', backendApplication);
+        return updated;
+      });
+
+    } catch (error) {
+      console.log('⚠️ Backend unavailable, updating application locally:', error.message);
+
+      // Fallback to local update only
+      setApplications(prev => {
+        const updated = prev.map(app =>
+          app.id === selectedItem.id ? processedApplication : app
+        );
+        safeLocalStorage.setItem('applications', JSON.stringify(updated));
+        console.log('✅ Application updated locally:', processedApplication);
+        return updated;
+      });
+    }
+  };
+
+  const deleteApplication = async (applicationId) => {
+    try {
+      // Try backend API first
+      await apiService.deleteApplication(applicationId);
+      console.log('✅ Application deleted on backend');
+
+      setApplications(prev => {
+        const updated = prev.filter(app => app.id !== applicationId);
+        safeLocalStorage.setItem('applications', JSON.stringify(updated));
+        console.log('Application deleted:', applicationId);
+        return updated;
+      });
+
+    } catch (error) {
+      console.log('⚠️ Backend unavailable, deleting application locally:', error.message);
+
+      // Fallback to local delete only
+      setApplications(prev => {
+        const updated = prev.filter(app => app.id !== applicationId);
+        safeLocalStorage.setItem('applications', JSON.stringify(updated));
+        console.log('Application deleted locally:', applicationId);
+        return updated;
+      });
+    }
+  };
+
+  // ===== SCREENING FUNCTIONS =====
+  const addScreening = async (newScreening) => {
+    const timestamp = new Date().toISOString();
+
+    const screening = {
+      ...newScreening,
+      id: Date.now(),
+      createdAt: timestamp,
+      updatedAt: timestamp
+    };
+
+    // Save to local state
+    setScreenings(prev => {
+      const updatedScreenings = [...prev, screening];
+      safeLocalStorage.setItem('screenings', JSON.stringify(updatedScreenings));
+      console.log('Screening saved locally:', screening);
+      return updatedScreenings;
+    });
+
+    return screening;
+  };
+
+  const updateScreening = async (screeningData, applicationId) => {
+    const timestamp = new Date().toISOString();
+
+    setScreenings(prev => {
+      // Find existing screening or create new entry
+      const existingIndex = prev.findIndex(s => s.applicationId === applicationId);
+      let updated;
+
+      if (existingIndex >= 0) {
+        // Update existing
+        updated = prev.map((s, i) =>
+          i === existingIndex
+            ? { ...s, ...screeningData, updatedAt: timestamp }
+            : s
+        );
+      } else {
+        // Add new
+        updated = [...prev, { ...screeningData, applicationId, updatedAt: timestamp, createdAt: timestamp }];
+      }
+
+      safeLocalStorage.setItem('screenings', JSON.stringify(updated));
+      console.log('Screening updated:', screeningData);
+      return updated;
+    });
+  };
+
+  const getScreeningByApplicationId = (applicationId) => {
+    return screenings.find(s => s.applicationId === applicationId);
+  };
+
   // ===== RETURN ONLY DATA FUNCTIONS =====
   return {
     // Data
@@ -704,8 +902,10 @@ export const usePropertyData = () => {
     workOrders,
     transactions,
     documents,
+    applications,
+    screenings,
     viewMode,
-    
+
     // API Status
     isOnline,
 
@@ -715,6 +915,8 @@ export const usePropertyData = () => {
     setWorkOrders,
     setTransactions,
     setDocuments,
+    setApplications,
+    setScreenings,
     setViewMode,
 
     // CRUD functions
@@ -729,6 +931,12 @@ export const usePropertyData = () => {
     updateWorkOrder,
     addDocument,
     deleteDocument,
+    addApplication,
+    updateApplication,
+    deleteApplication,
+    addScreening,
+    updateScreening,
+    getScreeningByApplicationId,
 
     // Filter functions
     getFilteredTransactions,

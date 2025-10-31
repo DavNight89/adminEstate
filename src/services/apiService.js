@@ -239,6 +239,48 @@ class ApiService {
     });
   }
 
+  // Applications API
+  async getApplications(params = {}) {
+    return this.request('/api/applications', { params });
+  }
+
+  async getApplication(id) {
+    return this.request(`/api/applications/${id}`);
+  }
+
+  async createApplication(applicationData) {
+    return this.request('/api/applications', {
+      method: 'POST',
+      body: applicationData,
+    });
+  }
+
+  async updateApplication(id, applicationData) {
+    return this.request(`/api/applications/${id}`, {
+      method: 'PUT',
+      body: applicationData,
+    });
+  }
+
+  async deleteApplication(id) {
+    return this.request(`/api/applications/${id}`, {
+      method: 'DELETE',
+    });
+  }
+
+  async updateApplicationStatus(id, status) {
+    return this.request(`/api/applications/${id}/status`, {
+      method: 'PATCH',
+      body: { status },
+    });
+  }
+
+  async convertApplicationToTenant(id) {
+    return this.request(`/api/applications/${id}/convert`, {
+      method: 'POST',
+    });
+  }
+
   // Utility methods
   async healthCheck() {
     return this.request('/api/health');

@@ -3,10 +3,10 @@ import React from 'react';
 import { Menu, User } from 'lucide-react';
 import { navigationItems } from '../config/navigation';
 
-export const Sidebar = ({ 
-  activeTab, 
-  setActiveTab, 
-  isCollapsed, 
+export const Sidebar = ({
+  activeTab,
+  setActiveTab,
+  isCollapsed,
   setIsCollapsed,
   showDescriptions = false // ✅ Optional prop for tooltips
 }) => (
@@ -16,7 +16,7 @@ export const Sidebar = ({
     <div className="p-4">
       <div className="flex items-center justify-between">
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-gray-900">Houzi</h1>
+          <h1 className="text-xl font-bold text-gray-900">AdminEstate</h1>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -42,7 +42,7 @@ export const Sidebar = ({
             {!isCollapsed && (
               <span className="ml-3 text-sm font-medium flex-1">{item.label}</span>
             )}
-            
+
             {/* Badge for new features */}
             {!isCollapsed && item.badge && (
               <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
@@ -72,7 +72,7 @@ export const Sidebar = ({
           </div>
           <div className="ml-3">
             <p className="text-sm font-medium text-gray-900">Property Manager</p>
-            <p className="text-xs text-gray-500">admin@houzi.com</p>
+            <p className="text-xs text-gray-500">admin@adminestate.com</p>
           </div>
         </div>
       </div>

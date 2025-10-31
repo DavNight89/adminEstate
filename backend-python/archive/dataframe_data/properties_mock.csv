@@ -1,0 +1,51 @@
+name,address,type,units,occupied,monthlyRevenue,purchasePrice,purchaseDate,status
+Sunset Apartments,123 Main St,Residential,24,22,26400,1200000,2019-03-15,Active
+Harbor View Condos,456 Ocean Ave,Residential,18,16,19200,950000,2020-06-22,Active
+Downtown Plaza,789 Market St,Commercial,12,11,33000,2100000,2018-11-10,Active
+Riverside Towers,321 River Rd,Residential,36,34,40800,1800000,2017-08-05,Active
+Green Valley Complex,654 Valley Dr,Residential,48,45,54000,2400000,2016-05-18,Active
+Park View Lofts,987 Park Ave,Residential,20,18,27000,1350000,2019-09-30,Active
+Oakwood Gardens,159 Oak St,Residential,30,28,33600,1600000,2018-04-12,Active
+Metro Business Center,753 Commerce Blvd,Commercial,16,14,42000,2800000,2015-12-20,Active
+Lakeside Estates,852 Lake Shore Dr,Residential,40,38,45600,2200000,2017-02-28,Active
+Pine Hill Residences,951 Pine St,Residential,22,20,24000,1100000,2020-01-15,Active
+Cedar Point Apartments,147 Cedar Ln,Residential,28,26,31200,1450000,2019-07-08,Active
+Maple Grove Plaza,258 Maple Ave,Commercial,10,9,27000,1900000,2016-10-25,Active
+Willow Creek Homes,369 Willow Way,Residential,32,30,36000,1700000,2018-06-14,Active
+Elmwood Suites,741 Elm St,Residential,26,24,28800,1300000,2019-11-03,Active
+Birch Street Lofts,852 Birch St,Residential,16,15,18000,850000,2020-08-17,Active
+Magnolia Terrace,963 Magnolia Dr,Residential,34,32,38400,1850000,2017-03-22,Active
+Sycamore Square,159 Sycamore Ave,Commercial,8,7,21000,1600000,2018-09-06,Active
+Aspen Heights,357 Aspen Rd,Residential,44,41,49200,2300000,2016-07-19,Active
+Redwood Towers,468 Redwood Blvd,Residential,50,47,56400,2700000,2015-04-11,Active
+Cherry Blossom Court,579 Cherry Ln,Residential,24,22,26400,1250000,2019-12-28,Active
+Hickory Hill Estates,681 Hickory Dr,Residential,38,36,43200,2050000,2017-05-16,Active
+Poplar Place,792 Poplar Ave,Residential,20,18,21600,980000,2020-02-09,Active
+Juniper Junction,813 Juniper St,Commercial,14,13,39000,2500000,2016-11-30,Active
+Spruce Street Studios,924 Spruce St,Residential,18,17,20400,920000,2019-08-24,Active
+Cypress Gardens,135 Cypress Way,Residential,42,40,48000,2250000,2017-10-07,Active
+Beech Boulevard Homes,246 Beech Blvd,Residential,30,28,33600,1550000,2018-03-19,Active
+Walnut Grove,357 Walnut St,Residential,26,24,28800,1320000,2019-06-11,Active
+Chestnut Commons,468 Chestnut Ave,Commercial,12,11,33000,2200000,2017-01-25,Active
+Laurel Lane Apartments,579 Laurel Ln,Residential,34,32,38400,1780000,2018-08-14,Active
+Dogwood Drive Suites,681 Dogwood Dr,Residential,22,20,24000,1080000,2020-04-03,Active
+Cottonwood Creek,792 Cottonwood Rd,Residential,36,34,40800,1950000,2017-09-28,Active
+Hawthorn Heights,813 Hawthorn Ave,Residential,28,26,31200,1480000,2019-02-15,Active
+Sequoia Square,924 Sequoia Blvd,Commercial,10,9,27000,1850000,2018-07-22,Active
+Alder Avenue Lofts,135 Alder Ave,Residential,16,15,18000,860000,2020-05-09,Active
+Fir Street Flats,246 Fir St,Residential,40,38,45600,2180000,2016-12-18,Active
+Basswood Boulevard,357 Basswood Blvd,Residential,32,30,36000,1680000,2017-11-05,Active
+Linden Lane Complex,468 Linden Ln,Residential,46,44,52800,2480000,2015-08-21,Active
+Pecan Place,579 Pecan Dr,Residential,24,22,26400,1210000,2019-10-14,Active
+Catalpa Court,681 Catalpa Ct,Residential,20,18,21600,990000,2020-03-27,Active
+Mulberry Manor,792 Mulberry Ave,Residential,38,36,43200,2020000,2017-06-08,Active
+Acacia Apartments,813 Acacia St,Residential,30,28,33600,1520000,2018-12-02,Active
+Buckeye Boulevard,924 Buckeye Blvd,Commercial,14,13,39000,2600000,2016-09-16,Active
+Ironwood Estates,135 Ironwood Rd,Residential,42,40,48000,2280000,2017-04-29,Active
+Mesquite Meadows,246 Mesquite Dr,Residential,26,24,28800,1340000,2019-01-11,Active
+Tamarack Terrace,357 Tamarack Ave,Residential,34,32,38400,1820000,2018-05-23,Active
+Hemlock Heights,468 Hemlock St,Residential,22,20,24000,1050000,2020-07-06,Active
+Yew Tree Yards,579 Yew Ln,Residential,28,26,31200,1460000,2019-04-18,Active
+Boxwood Bay,681 Boxwood Way,Commercial,12,11,33000,2150000,2017-12-31,Active
+Locust Landing,792 Locust Ave,Residential,36,34,40800,1920000,2018-02-13,Active
+Persimmon Park,813 Persimmon Dr,Residential,44,42,50400,2360000,2016-06-26,Active

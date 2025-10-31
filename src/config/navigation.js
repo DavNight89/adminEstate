@@ -1,14 +1,15 @@
-import { 
-  Home, 
-  Building, 
-  Users, 
-  DollarSign, 
-  FileText, 
-  BarChart3, 
-  Wrench, 
+import {
+  Home,
+  Building,
+  Users,
+  DollarSign,
+  FileText,
+  BarChart3,
+  Wrench,
   MessageSquare,
   Zap,
-  PieChart
+  PieChart,
+  ClipboardList
 } from 'lucide-react';
 
 export const navigationItems = [
@@ -24,17 +25,24 @@ export const navigationItems = [
     icon: Building, // ✅ Better icon than Home 
     description: 'Manage your portfolio' 
   },
-  { 
-    id: 'tenants', 
-    label: 'Tenants', 
-    icon: Users, 
-    description: 'Tenant information' 
+  {
+    id: 'tenants',
+    label: 'Tenants',
+    icon: Users,
+    description: 'Tenant information'
   },
-  { 
-    id: 'workorders', 
-    label: 'Work Orders', 
-    icon: Wrench, 
-    description: 'Maintenance requests' 
+  {
+    id: 'applications',
+    label: 'Applications',
+    icon: ClipboardList,
+    description: 'Tenant applications',
+    badge: 'NEW'
+  },
+  {
+    id: 'workorders',
+    label: 'Work Orders',
+    icon: Wrench,
+    description: 'Maintenance requests'
   },
   { 
     id: 'financial', 
@@ -79,10 +87,10 @@ export const navigationItems = [
 export const navigationGroups = [
   {
     label: 'Core',
-    items: ['dashboard', 'properties', 'tenants']
+    items: ['dashboard', 'properties', 'tenants', 'applications']
   },
   {
-    label: 'Operations', 
+    label: 'Operations',
     items: ['workorders', 'financial', 'communication']
   },
   {

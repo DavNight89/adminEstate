@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, HelpCircle, Settings, Menu, Home, Users, Building, Wrench, DollarSign, BarChart3, MessageSquare, FileText, PieChart } from 'lucide-react';
+import { Bell, HelpCircle, Settings, Menu, Home, Users, Building, Wrench, DollarSign, BarChart3, MessageSquare, FileText, PieChart, ClipboardList } from 'lucide-react';
 
 // ===== ESSENTIAL IMPORTS ONLY =====
 import { SearchBar } from './common/SearchBar';
@@ -7,6 +7,7 @@ import Modal from './components/Modal';
 import { Sidebar } from './layout/SideBar';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { usePropertyData } from './hooks/usePropertyData';
+
 
 // ===== KEEP ALL YOUR COMPONENTS =====
 import { Dashboard } from './components/dashboard/Dashboard';
@@ -18,6 +19,9 @@ import { Properties } from './components/Properties';
 import { Tenants } from './components/Tenants';
 import { WorkOrders } from './components/WorkOrders';
 import { Reports } from './components/Reports';
+import ApplicationsList from './components/ApplicationsList';
+import ApplicationForm from './components/ApplicationForm';
+import ApplicationDetails from './components/ApplicationDetails';
 
 const UserFriendlyPropertyApp = () => {
   // ===== UI STATE =====
@@ -34,6 +38,11 @@ const UserFriendlyPropertyApp = () => {
   const [filterStatus, setFilterStatus] = useLocalStorage('filterStatus', 'all');
   const [filterPriority, setFilterPriority] = useLocalStorage('filterPriority', 'all');
 
+  // ===== APPLICATION STATE =====
+  const [selectedApplication, setSelectedApplication] = useState(null);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [showApplicationDetails, setShowApplicationDetails] = useState(false);
+
   // ===== MODAL STATE (simple) =====
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
@@ -47,18 +56,25 @@ const UserFriendlyPropertyApp = () => {
     workOrders,
     transactions,
     documents,
+    applications,
+    screenings,
     addTransaction,
     updateTransaction,
     deleteTransaction,
-    addTenant,        // ✅ Add this
+    addTenant,
     updateTenant,
-    deleteTenant,     // ✅ Add this
-    addProperty, 
-    updateProperty,     // ✅ Add this
-    deleteProperty,     // ✅ Add this
+    deleteTenant,
+    addProperty,
+    updateProperty,
+    deleteProperty,
     addWorkOrder,
     updateWorkOrder,
     deleteWorkOrder,
+    addDocument,
+    deleteDocument,
+    addApplication,
+    updateApplication,
+    deleteApplication,
   } = usePropertyData();
 
   // ===== NAVIGATION TABS (all your components) =====
@@ -66,6 +82,8 @@ const UserFriendlyPropertyApp = () => {
     { id: 'dashboard', label: 'Dashboard', icon: Home },
     { id: 'properties', label: 'Properties', icon: Building },
     { id: 'tenants', label: 'Tenants', icon: Users },
+    { id: 'applications', label: 'Applications', icon: ClipboardList },
+    { id: 'screening', label: 'Screening', icon: ClipboardList },
     { id: 'workorders', label: 'Work Orders', icon: Wrench },
     { id: 'financial', label: 'Financial', icon: DollarSign },
     { id: 'analytics', label: 'Analytics', icon: BarChart3 },
@@ -187,6 +205,53 @@ const handleSubmit = (e) => {
 
   const clearSearch = () => {
     setSearchQuery('');
+  };
+
+  // ===== APPLICATION HANDLERS =====
+  const handleViewApplication = (application) => {
+    setSelectedApplication(application);
+    setShowApplicationDetails(true);
+  };
+
+  const handleCloseApplicationDetails = () => {
+    setShowApplicationDetails(false);
+    setSelectedApplication(null);
+  };
+
+  const handleApplicationSubmit = async (applicationData) => {
+    await addApplication(applicationData);
+    setShowApplicationForm(false);
+  };
+
+  const handleUpdateApplicationStatus = async (applicationId, status) => {
+    const application = applications.find(app => app.id === applicationId);
+    if (application) {
+      await updateApplication({ status }, application);
+      // Refresh the selected application if it's being viewed
+      if (selectedApplication?.id === applicationId) {
+        setSelectedApplication({ ...application, status });
+      }
+    }
+  };
+
+  const handleConvertToTenant = async (application) => {
+    // Create tenant from application data
+    const tenantData = {
+      name: `${application.firstName} ${application.lastName}`,
+      email: application.email,
+      phone: application.phone,
+      property: application.propertyId,
+      unit: application.unitNumber,
+      rent: application.proposedRent || 0,
+      leaseStart: new Date().toISOString().split('T')[0],
+      leaseEnd: '',
+      status: 'Current'
+    };
+
+    await addTenant(tenantData);
+    await updateApplication({ status: 'converted' }, application);
+    setShowApplicationDetails(false);
+    setSelectedApplication(null);
   };
 
   // ===== ANALYTICS FUNCTIONS (for Financial component) =====
@@ -379,6 +444,8 @@ const getQuickStats = () => {
     const commonProps = {
       properties,
       tenants,
+      applications,
+      screenings,
       workOrders,
       transactions,
       documents,
@@ -406,16 +473,22 @@ const getQuickStats = () => {
     setModalType,
     showModal,
     setShowModal,
-    closeModal      
+    closeModal,
+    addDocument,
+    deleteDocument,
+    addProperty,
+    addTenant,
+    addTransaction,
+    addWorkOrder
     };
 
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard {...commonProps} />;
-      
+
       case 'financial':
         return (
-          <Financial 
+          <Financial
             {...commonProps}
             getComprehensiveFinancialStats={getComprehensiveFinancialStats}
             getExpenseCategories={getExpenseCategories}
@@ -427,28 +500,71 @@ const getQuickStats = () => {
             deleteTransaction={deleteTransaction}
           />
         );
-      
+
       case 'properties':
         return <Properties {...commonProps} />;
-      
+
       case 'tenants':
         return <Tenants {...commonProps} />;
-        
+
+      case 'applications':
+        console.log('Applications tab rendering:', {
+          showApplicationForm,
+          showApplicationDetails,
+          selectedApplication,
+          applicationsCount: applications?.length
+        });
+
+        if (showApplicationForm) {
+          return (
+            <ApplicationForm
+              propertyId={null}
+              propertyName=""
+              properties={properties}
+              onSubmit={handleApplicationSubmit}
+              onCancel={() => setShowApplicationForm(false)}
+            />
+          );
+        }
+
+        if (showApplicationDetails && selectedApplication) {
+          return (
+            <ApplicationDetails
+              application={selectedApplication}
+              onClose={handleCloseApplicationDetails}
+              onUpdateStatus={handleUpdateApplicationStatus}
+              onConvertToTenant={handleConvertToTenant}
+              onDelete={deleteApplication}
+            />
+          );
+        }
+
+        return (
+          <ApplicationsList
+            applications={applications}
+            properties={properties}
+            onViewApplication={handleViewApplication}
+            onNewApplication={() => setShowApplicationForm(true)}
+            onUpdateStatus={handleUpdateApplicationStatus}
+            onDelete={deleteApplication}
+          />
+        );
+
       case 'workorders':
         return <WorkOrders {...commonProps} />;
-      
+
       case 'analytics':
         return <Analytics {...commonProps} />;
-      
+
       case 'communication':
         return <Communication {...commonProps} />;
-        
+
       case 'documents':
         return <Documents {...commonProps} />;
-        
+
       case 'reports':
         return <Reports {...commonProps} />;
-      
+
       default:
         return <Dashboard {...commonProps} />;
     }
@@ -460,7 +576,7 @@ const getQuickStats = () => {
       <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            
+
             <div className="flex items-center">
               <button
                 onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -471,9 +587,9 @@ const getQuickStats = () => {
               <div className="p-2 bg-blue-600 rounded-lg mr-3">
                 <Home className="w-6 h-6 text-white" />
               </div>
-              <h1 className="text-xl font-bold text-gray-900">adminEstate</h1>
+              <h1 className="text-xl font-bold text-gray-900">AdminEstate</h1>
             </div>
-            
+
             <div className="hidden md:flex flex-1 max-w-md mx-6">
               <SearchBar
                 searchQuery={searchQuery}

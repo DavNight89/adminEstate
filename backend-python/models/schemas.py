@@ -182,3 +182,123 @@ class ExpenseCategory(BaseModel):
     budget: float
     percentage: float
     count: int
+
+# ===== APPLICATION MODELS =====
+class ApplicationStatus(str, Enum):
+    SUBMITTED = "submitted"
+    SCREENING = "screening"
+    APPROVED = "approved"
+    CONDITIONAL = "conditional"
+    REJECTED = "rejected"
+    WITHDRAWN = "withdrawn"
+
+# Nested Models for Application
+class AddressInfo(BaseModel):
+    street: str
+    city: str
+    state: str
+    zip: str
+    landlordName: Optional[str] = None
+    landlordPhone: Optional[str] = None
+    monthlyRent: Optional[float] = None
+    moveInDate: Optional[str] = None
+
+class EmergencyContact(BaseModel):
+    name: str
+    relationship: str
+    phone: str
+
+class PersonalReference(BaseModel):
+    name: str
+    relationship: str
+    phone: str
+    email: Optional[str] = None
+
+class Occupant(BaseModel):
+    name: str
+    age: Optional[int] = None
+    relationship: str
+
+class Pet(BaseModel):
+    type: str  # dog, cat, other
+    breed: Optional[str] = None
+    weight: Optional[int] = None
+    name: Optional[str] = None
+
+class Vehicle(BaseModel):
+    make: str
+    model: str
+    year: Optional[int] = None
+    licensePlate: str
+    color: Optional[str] = None
+
+class AdditionalIncome(BaseModel):
+    source: str
+    monthlyAmount: float
+    description: Optional[str] = None
+
+# Main Application Models
+class ApplicationBase(BaseModel):
+    firstName: str
+    lastName: str
+    email: str
+    phone: str
+    dateOfBirth: str
+    propertyId: str
+    propertyName: str
+    desiredUnit: Optional[str] = None
+    desiredMoveInDate: str
+    leaseTerm: int = 12  # months
+
+    currentEmployer: str
+    jobTitle: str
+    employmentStartDate: str
+    monthlyIncome: float
+    employerPhone: str
+    additionalIncome: List[AdditionalIncome] = []
+
+    currentAddress: AddressInfo
+    previousAddresses: List[AddressInfo] = []
+
+    emergencyContact: EmergencyContact
+    personalReferences: List[PersonalReference] = []
+
+    occupants: List[Occupant] = []
+    pets: List[Pet] = []
+    vehicles: List[Vehicle] = []
+
+    hasEvictions: bool = False
+    hasBankruptcy: bool = False
+    hasCriminalHistory: bool = False
+    disclosureNotes: Optional[str] = None
+
+    backgroundCheckConsent: bool
+    creditCheckConsent: bool
+    consentSignature: str
+    consentDate: Optional[str] = None
+
+class ApplicationCreate(ApplicationBase):
+    pass
+
+class ApplicationUpdate(BaseModel):
+    status: Optional[ApplicationStatus] = None
+    reviewedBy: Optional[str] = None
+    decisionReason: Optional[str] = None
+    screeningId: Optional[str] = None
+    tenantId: Optional[str] = None
+
+class Application(ApplicationBase):
+    id: int
+    status: ApplicationStatus = ApplicationStatus.SUBMITTED
+    submittedDate: str
+    documents: List[str] = []
+    screeningId: Optional[str] = None
+    reviewedBy: Optional[str] = None
+    reviewedDate: Optional[str] = None
+    decisionReason: Optional[str] = None
+    tenantId: Optional[str] = None
+    createdAt: str
+    updatedAt: str
+
+    class Config:
+        from_attributes = True

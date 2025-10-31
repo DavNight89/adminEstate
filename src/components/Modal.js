@@ -41,9 +41,9 @@ const Modal = ({showModal,
     <div className={`bg-white rounded-xl shadow-xl w-full mx-4 overflow-y-auto ${
 (modalType === 'viewMonthlyRevenue' || modalType === 'viewOccupancyRate' || modalType === 'viewPropertiesOverview' || modalType === 'viewTotalUnits')
         ? 'max-w-6xl max-h-[95vh]'  // ← Large modals
-        : 'max-w-md max-h-[90vh]'   // ← Standard modals // ← Standard modals
+        : 'max-w-md max-h-[90vh]'   // ← Standard modals
     }`}>
-        
+
         {/* Header with Modal Title */}
         <div className="flex justify-between items-center p-6 border-b border-gray-200">
           <h3 className="text-xl font-semibold text-gray-900">
@@ -63,8 +63,8 @@ const Modal = ({showModal,
              modalType === 'viewTotalUnits' ? 'Total Units Overview' : 
              'Modal'}
           </h3>
-          <button 
-            onClick={closeModal} 
+          <button
+            onClick={closeModal}
             className="text-gray-400 hover:text-gray-600 p-1 rounded-lg hover:bg-gray-100 transition-colors"
           >
             <X className="w-5 h-5" />

@@ -49,7 +49,7 @@ export const QuickActions = ({ openModal, setActiveTab }) => {
       </h3>
       <div className="space-y-3">
         {actions.map(action => (
-          <button 
+          <button
             key={action.id}
             onClick={action.onClick}
             className={`w-full p-4 bg-gradient-to-r ${action.gradientFrom} ${action.gradientTo} ${action.hoverFrom} ${action.hoverTo} rounded-lg flex items-center transition-all group`}

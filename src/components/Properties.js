@@ -107,8 +107,8 @@ export const Properties = ({
                   <Eye className="w-4 h-4 mr-2" />
                   View
                 </button>
-                <button 
-                  onClick={() => openModal('editProperty', property)}
+                <button
+                  onClick={() => openModal('updateProperty', property)}
                   className="flex-1 flex items-center justify-center px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                 >
                   <Edit className="w-4 h-4 mr-2" />

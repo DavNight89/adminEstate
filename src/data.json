@@ -171,19 +171,86 @@
       "dateSubmitted": "2025-10-20"
     }
   ],
-  "transactions": [
+  "transactions": [],
+  "documents": [],
+  "applications": [
     {
-      "type": "expense",
-      "amount": 1200,
-      "description": "plumbing ",
-      "date": "2025-10-27",
-      "category": "",
-      "property": "Saibot's Porperties",
-      "tenant": "",
-      "unit": "1",
-      "id": 1761588998528,
-      "status": "completed"
+      "additionalIncome": [],
+      "backgroundCheckConsent": true,
+      "consentDate": null,
+      "consentSignature": "Farah Celente",
+      "createdAt": "2025-10-28T19:20:43.879679",
+      "creditCheckConsent": true,
+      "currentAddress": {
+        "city": "Maimi",
+        "landlordName": "Liu",
+        "landlordPhone": "",
+        "monthlyRent": 2500,
+        "moveInDate": "2015-03-17",
+        "state": "FL",
+        "street": "978 26th St S",
+        "zip": "67891"
+      },
+      "currentEmployer": "Vamps LLC",
+      "dateOfBirth": "1970-05-15",
+      "decisionReason": "",
+      "desiredMoveInDate": "2025-11-15",
+      "desiredUnit": "1",
+      "disclosureNotes": "",
+      "documents": [],
+      "email": "farah@casazai.com",
+      "emergencyContact": {
+        "name": "Cathy",
+        "phone": "798-6718",
+        "relationship": "Aunt"
+      },
+      "employerPhone": "1800-085-2795",
+      "employmentStartDate": "2020-05-15",
+      "firstName": "Farah",
+      "hasBankruptcy": false,
+      "hasCriminalHistory": false,
+      "hasEvictions": false,
+      "id": 1761697243795,
+      "jobTitle": "CLT",
+      "lastName": "Celenete",
+      "lastUpdated": "2025-10-29T22:21:49.866Z",
+      "leaseTerm": 12,
+      "monthlyIncome": 6000,
+      "occupants": [],
+      "personalReferences": [
+        {
+          "email": "",
+          "name": "Zhoung",
+          "phone": "",
+          "relationship": "manager"
+        }
+      ],
+      "pets": [
+        {
+          "breed": "German sheperd",
+          "type": "dog",
+          "weight": 100
+        }
+      ],
+      "phone": "556-9913",
+      "previousAddresses": [],
+      "propertyId": "0505734f-1f56-4d3b-8e53-6fc8895fd355",
+      "propertyName": "",
+      "reviewedBy": null,
+      "reviewedDate": null,
+      "screeningId": null,
+      "ssn": "",
+      "status": "screening",
+      "submittedDate": "2025-10-29T00:20:43.795Z",
+      "tenantId": null,
+      "updatedAt": "2025-10-28T19:20:43.879693",
+      "vehicles": [
+        {
+          "licensePlate": "YOYO97",
+          "make": "Acura",
+          "model": "ZDX"
+        }
+      ]
     }
-  ],
-  "documents": []
+  ]
 }
