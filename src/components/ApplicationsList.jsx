@@ -1,6 +1,6 @@
 // src/components/ApplicationsList.jsx
 import React, { useState } from 'react';
-import { Search, Filter, Eye, CheckCircle, XCircle, Clock, AlertCircle, UserCheck, FileText, Plus } from 'lucide-react';
+import { Search, Filter, Eye, CheckCircle, XCircle, Clock, AlertCircle, UserCheck, FileText, Plus, Trash2, ViewIcon } from 'lucide-react';
 
 export default function ApplicationsList({
   applications = [],
@@ -268,7 +268,7 @@ export default function ApplicationsList({
                         className="text-blue-600 hover:text-blue-800 flex items-center"
                         title="View Details"
                       >
-                        <Eye className="w-4 h-4" />
+                        <ViewIcon/>
                       </button>
 
                       {app.status === 'submitted' && onUpdateStatus && (
@@ -304,6 +304,20 @@ export default function ApplicationsList({
                           <CheckCircle className="w-3 h-3 mr-1" />
                           Converted
                         </span>
+                      )}
+
+                      {onDelete && (
+                        <button
+                          onClick={() => {
+                            if (window.confirm(`Are you sure you want to delete the application from ${app.firstName} ${app.lastName}?`)) {
+                              onDelete(app.id);
+                            }
+                          }}
+                          className="text-red-600 hover:text-red-800 flex items-center ml-2"
+                          title="Delete Application"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       )}
                     </div>
                   </td>

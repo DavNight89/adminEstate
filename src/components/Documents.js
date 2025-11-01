@@ -45,26 +45,47 @@ export const Documents = ({
 
   // Handle upload form submission
   const handleUploadSubmit = async () => {
+    // Validate that all requirements are met
     if (!uploadFormData.file) {
       alert('Please select a file to upload');
-      return;
+      return; // Don't close modal if validation fails
     }
 
+    if (!uploadFormData.category) {
+      alert('Please select a category');
+      return; // Don't close modal if validation fails
+    }
+
+    // Upload the document
     if (addDocument) {
-      await addDocument({
-        file: uploadFormData.file,
-        category: uploadFormData.category,
-        property: uploadFormData.property
-      });
-    }
+      try {
+        await addDocument({
+          file: uploadFormData.file,
+          category: uploadFormData.category,
+          property: uploadFormData.property
+        });
 
-    // Reset form and close modal
-    setUploadFormData({
-      category: 'lease',
-      property: 'All Properties',
-      file: null
-    });
-    setShowUploadModal(false);
+        // Only reset form and close modal after successful upload
+        setUploadFormData({
+          category: 'lease',
+          property: 'All Properties',
+          file: null
+        });
+        setShowUploadModal(false);
+      } catch (error) {
+        // If upload fails, show error but keep modal open
+        alert(`Upload failed: ${error.message}`);
+        return;
+      }
+    } else {
+      // If no addDocument function provided, just close modal
+      setUploadFormData({
+        category: 'lease',
+        property: 'All Properties',
+        file: null
+      });
+      setShowUploadModal(false);
+    }
   };
 
   // Handle file input change

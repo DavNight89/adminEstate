@@ -70,13 +70,13 @@ export const mapCSVToProperties = (csvData) => {
   return csvData.map(row => ({
     id: Date.now() + Math.random(), // Temporary ID
     name: row.name || row.Name || row.property_name || row['Property Name'] || '',
-    address: row.address || row.Address || '',
+    address: row.address || row.Address || row.property_address || row['Property Address'] || '',
     type: row.type || row.Type || row.property_type || row['Property Type'] || 'Residential',
-    units: parseInt(row.units || row.Units || row.total_units || row['Total Units'] || '0'),
+    units: parseInt(row.units || row.Units || row.property_units || row['Property Units'] || row.total_units || row['Total Units'] || '0'),
     occupied: parseInt(row.occupied || row.Occupied || row.occupied_units || row['Occupied Units'] || '0'),
     monthlyRevenue: parseFloat(row.monthlyRevenue || row['Monthly Revenue'] || row.revenue || row.Revenue || '0'),
-    purchasePrice: parseFloat(row.purchasePrice || row['Purchase Price'] || row.price || row.Price || '0'),
-    purchaseDate: row.purchaseDate || row['Purchase Date'] || row.date || row.Date || '',
+    purchasePrice: parseFloat(row.purchasePrice || row['Purchase Price'] || row.property_purchasePrice || row['Property Purchase Price'] || row.price || row.Price || '0'),
+    purchaseDate: row.purchaseDate || row['Purchase Date'] || row.property_purchaseDate || row['Property Purchase Date'] || row.date || row.Date || '',
     status: row.status || row.Status || 'Active'
   }));
 };
@@ -95,15 +95,15 @@ export const mapCSVToTenants = (csvData) => {
     return {
       id: Date.now() + Math.random(),
       name: name || `${firstName} ${lastName}`.trim(),
-      email: row.email || row.Email || '',
-      phone: row.phone || row.Phone || row.phone_number || row['Phone Number'] || '',
+      email: row.email || row.Email || row.tenant_email || row['Tenant Email'] || '',
+      phone: row.phone || row.Phone || row.tenant_phone || row['Tenant Phone'] || row.phone_number || row['Phone Number'] || '',
       property: row.property || row.Property || row.property_name || row['Property Name'] || '',
-      unit: row.unit || row.Unit || row.unit_number || row['Unit Number'] || '',
-      rent: parseFloat(row.rent || row.Rent || row.monthly_rent || row['Monthly Rent'] || '0'),
+      unit: row.unit || row.Unit || row.tenant_unit || row['Tenant Unit'] || row.unit_number || row['Unit Number'] || '',
+      rent: parseFloat(row.rent || row.Rent || row.tenant_rent || row['Tenant Rent'] || row.monthly_rent || row['Monthly Rent'] || '0'),
       leaseStart: row.leaseStart || row['Lease Start'] || row.lease_start || row.start_date || row['Start Date'] || '',
-      leaseEnd: row.leaseEnd || row['Lease End'] || row.lease_end || row.end_date || row['End Date'] || '',
-      status: row.status || row.Status || 'Current',
-      balance: parseFloat(row.balance || row.Balance || row.outstanding || row.Outstanding || '0'),
+      leaseEnd: row.leaseEnd || row['Lease End'] || row.tenant_leaseEnd || row['Tenant Lease End'] || row.lease_end || row.end_date || row['End Date'] || '',
+      status: row.status || row.Status || row.tenant_status || row['Tenant Status'] || 'Current',
+      balance: parseFloat(row.balance || row.Balance || row.tenant_balance || row['Tenant Balance'] || row.outstanding || row.Outstanding || '0'),
       avatar: (name || `${firstName} ${lastName}`.trim()).split(' ').map(n => n[0]).join('').toUpperCase()
     };
   });
@@ -158,14 +158,18 @@ export const mapCSVToWorkOrders = (csvData) => {
 export const detectEntityType = (headers) => {
   const lowerHeaders = headers.map(h => h.toLowerCase());
 
-  // Property indicators
-  if (lowerHeaders.some(h => h.includes('property') || h.includes('units') || h.includes('purchase'))) {
-    return 'properties';
+  // Check for most specific indicators first to avoid false matches
+
+  // Tenant indicators (check before properties since tenants have "property" column)
+  if (lowerHeaders.some(h => h.includes('lease') || h.includes('tenant')) ||
+      (lowerHeaders.includes('email') && lowerHeaders.includes('property') && lowerHeaders.includes('unit'))) {
+    return 'tenants';
   }
 
-  // Tenant indicators
-  if (lowerHeaders.some(h => h.includes('tenant') || h.includes('lease') || h.includes('rent'))) {
-    return 'tenants';
+  // Property indicators (check for unique property fields)
+  if (lowerHeaders.some(h => h.includes('units') || h.includes('purchase') || h.includes('address')) &&
+      !lowerHeaders.includes('email')) {
+    return 'properties';
   }
 
   // Transaction indicators

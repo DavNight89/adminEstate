@@ -334,19 +334,20 @@ export const usePropertyData = () => {
 
     try {
       // Try backend API first
-      const apiProperty = await apiService.createProperty(property);
-      console.log('✅ Property created on backend:', apiProperty);
-      
-      // Use the backend response (which might have different ID or additional fields)
+      const apiResponse = await apiService.createProperty(property);
+      console.log('✅ Property created on backend:', apiResponse);
+
+      // Unwrap API response - backend returns { success, data, message }
+      const apiProperty = apiResponse.data || apiResponse;
       const backendProperty = apiProperty.id ? apiProperty : { ...apiProperty, id: property.id };
-      
+
       setProperties(prev => {
         const updatedProperties = [...prev, backendProperty];
         safeLocalStorage.setItem('properties', JSON.stringify(updatedProperties));
         console.log('Property synced with backend:', backendProperty);
         return updatedProperties;
       });
-      
+
     } catch (error) {
       console.log('⚠️ Backend unavailable, saving locally:', error.message);
       
@@ -421,12 +422,17 @@ export const usePropertyData = () => {
     const newTenantData = {
       ...newTenant,
       id: Date.now(),
-      avatar: newTenant.name.split(' ').map(n => n[0]).join(''),
-      status: 'Current',
-      balance: 0,
+      avatar: newTenant.avatar || newTenant.name.split(' ').map(n => n[0]).join(''),
+      status: newTenant.status || 'Current',
+      balance: parseFloat(newTenant.balance) || 0,
       unit: newTenant.unit,
-      property: selectedProperty?.name || 'Unknown Property',
+      // Preserve property name from CSV import, fallback to selectedProperty for manual entry
+      property: newTenant.property || selectedProperty?.name || 'Unknown Property',
       rent: parseFloat(newTenant.rent) || 0,
+      email: newTenant.email || '',
+      phone: newTenant.phone || '',
+      leaseStart: newTenant.leaseStart || '',
+      leaseEnd: newTenant.leaseEnd || '',
       created_at: timestamp,
       updated_at: timestamp
     };

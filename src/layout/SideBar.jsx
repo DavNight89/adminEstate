@@ -16,7 +16,7 @@ export const Sidebar = ({
     <div className="p-4">
       <div className="flex items-center justify-between">
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-gray-900">AdminEstate</h1>
+          <h1 className="text-xl font-bold text-gray-900">Management</h1>
         )}
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -31,9 +31,12 @@ export const Sidebar = ({
       {navigationItems.map(item => (
         <div key={item.id} className="relative group">
           <button
-            onClick={() => setActiveTab(item.id)}
+            onClick={() => !item.isDisabled && setActiveTab(item.id)}
+            disabled={item.isDisabled}
             className={`w-full flex items-center px-4 py-3 text-left transition-colors ${
-              activeTab === item.id
+              item.isDisabled
+                ? 'text-gray-400 cursor-not-allowed opacity-60'
+                : activeTab === item.id
                 ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600'
                 : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
             }`}
@@ -45,7 +48,11 @@ export const Sidebar = ({
 
             {/* Badge for new features */}
             {!isCollapsed && item.badge && (
-              <span className="ml-2 px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+              <span className={`ml-2 px-2 py-1 text-xs rounded-full ${
+                item.isDisabled
+                  ? 'bg-gray-100 text-gray-500'
+                  : 'bg-green-100 text-green-800'
+              }`}>
                 {item.badge}
               </span>
             )}

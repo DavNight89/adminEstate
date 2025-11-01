@@ -1,0 +1,11 @@
+name,email,phone,property,unit,rent,leaseEnd,status,balance
+Sarah Johnson,sarah.j@email.com,555-0101,Sunset Apartments,10,1500,2025-06-15,Current,0
+Michael Chen,m.chen@email.com,555-0102,Sunset Apartments,9,1500,2025-08-20,Current,0
+Emily Rodriguez,emily.r@email.com,555-0103,Harbor View Condos,2,1800,2025-04-10,Current,-150
+David Thompson,d.thompson@email.com,555-0104,Harbor View Condos,3,1800,2025-07-22,Current,0
+Jessica Martinez,j.martinez@email.com,555-0105,Downtown Plaza,1,2500,2025-05-18,Current,0
+Christopher Lee,chris.lee@email.com,555-0106,Downtown Plaza,2,2500,2024-12-31,Current,0
+Amanda White,a.white@email.com,555-0107,Riverside Towers,1,1600,2025-03-14,Current,250
+James Anderson,j.anderson@email.com,555-0108,Riverside Towers,2,1600,2025-09-30,Current,0
+Maria Garcia,maria.g@email.com,555-0109,Green Valley Complex,1,1400,2025-01-25,Current,0
+Robert Taylor,r.taylor@email.com,555-0110,Green Valley Complex,2,1400,2025-02-28,Current,0

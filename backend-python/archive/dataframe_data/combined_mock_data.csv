@@ -1,0 +1,51 @@
+property_name,property_address,property_type,property_units,property_purchasePrice,property_purchaseDate,tenant_name,tenant_email,tenant_phone,tenant_unit,tenant_rent,tenant_leaseEnd,tenant_status,tenant_balance
+Sunset Apartments,123 Main St,Residential,24,1200000,2019-03-15,Sarah Johnson,sarah.j@email.com,555-0101,101,1500,2025-06-15,Current,0
+Sunset Apartments,123 Main St,Residential,24,1200000,2019-03-15,Michael Chen,m.chen@email.com,555-0102,102,1500,2025-08-20,Current,0
+Harbor View Condos,456 Ocean Ave,Residential,18,2100000,2020-07-22,Emily Rodriguez,emily.r@email.com,555-0103,201,1800,2025-04-10,Current,-150
+Harbor View Condos,456 Ocean Ave,Residential,18,2100000,2020-07-22,David Thompson,d.thompson@email.com,555-0104,202,1800,2025-07-22,Current,0
+Downtown Plaza,789 Business Blvd,Commercial,12,3500000,2018-11-30,Jessica Martinez,j.martinez@email.com,555-0105,301,2500,2025-05-18,Current,0
+Downtown Plaza,789 Business Blvd,Commercial,12,3500000,2018-11-30,Christopher Lee,chris.lee@email.com,555-0106,302,2500,2024-12-31,Current,0
+Riverside Towers,321 River Rd,Residential,30,1800000,2021-02-14,Amanda White,a.white@email.com,555-0107,401,1600,2025-03-14,Current,250
+Riverside Towers,321 River Rd,Residential,30,1800000,2021-02-14,James Anderson,j.anderson@email.com,555-0108,402,1600,2025-09-30,Current,0
+Green Valley Complex,654 Park Lane,Mixed-Use,20,1500000,2019-09-01,Maria Garcia,maria.g@email.com,555-0109,501,1400,2025-01-25,Current,0
+Green Valley Complex,654 Park Lane,Mixed-Use,20,1500000,2019-09-01,Robert Taylor,r.taylor@email.com,555-0110,502,1400,2025-02-28,Current,0
+Park View Lofts,987 Downtown St,Residential,16,2800000,2017-05-20,Jennifer Wilson,jen.wilson@email.com,555-0111,601,2200,2024-11-15,Current,-500
+Park View Lofts,987 Downtown St,Residential,16,2800000,2017-05-20,William Brown,w.brown@email.com,555-0112,602,2200,2025-05-31,Current,0
+Oakwood Gardens,147 Garden Way,Residential,22,1400000,2020-03-18,Elizabeth Davis,liz.davis@email.com,555-0113,701,1700,2025-08-14,Current,0
+Oakwood Gardens,147 Garden Way,Residential,22,1400000,2020-03-18,Daniel Miller,d.miller@email.com,555-0114,702,1700,2025-03-31,Current,0
+Metro Business Center,258 Commerce Dr,Commercial,8,4200000,2016-12-10,Patricia Moore,pat.moore@email.com,555-0115,801,3000,2025-06-12,Current,0
+Metro Business Center,258 Commerce Dr,Commercial,8,4200000,2016-12-10,Thomas Jackson,t.jackson@email.com,555-0116,802,3000,2025-07-28,Current,0
+Lakeside Estates,369 Lake View Dr,Residential,26,1650000,2021-06-25,Linda Harris,l.harris@email.com,555-0117,901,1900,2025-04-30,Current,0
+Lakeside Estates,369 Lake View Dr,Residential,26,1650000,2021-06-25,Charles Martin,c.martin@email.com,555-0118,902,1900,2025-01-14,Current,-200
+Pine Hill Residences,741 Pine St,Residential,14,950000,2022-01-15,Barbara Thompson,barb.t@email.com,555-0119,1001,1300,2025-02-28,Current,0
+Pine Hill Residences,741 Pine St,Residential,14,950000,2022-01-15,Richard Clark,r.clark@email.com,555-0120,1002,1300,2025-08-31,Current,0
+Cedar Point Apartments,852 Cedar Ave,Residential,20,1100000,2019-08-05,Susan Lewis,s.lewis@email.com,555-0121,1101,1550,2024-12-31,Current,0
+Cedar Point Apartments,852 Cedar Ave,Residential,20,1100000,2019-08-05,Joseph Walker,joe.walker@email.com,555-0122,1102,1550,2025-06-10,Current,300
+Maple Grove Plaza,963 Maple Rd,Commercial,10,3800000,2018-04-12,Karen Hall,k.hall@email.com,555-0123,1201,2800,2025-07-14,Current,0
+Maple Grove Plaza,963 Maple Rd,Commercial,10,3800000,2018-04-12,Steven Young,s.young@email.com,555-0124,1202,2800,2025-03-31,Current,0
+Willow Creek Homes,159 Willow Way,Residential,18,1250000,2020-10-08,Nancy King,nancy.k@email.com,555-0125,1301,1650,2025-05-31,Current,0
+Willow Creek Homes,159 Willow Way,Residential,18,1250000,2020-10-08,Kenneth Wright,k.wright@email.com,555-0126,1302,1650,2025-01-14,Current,0
+Elmwood Suites,357 Elm St,Residential,12,1350000,2017-09-22,Betty Lopez,betty.l@email.com,555-0127,1401,1750,2024-11-30,Current,-400
+Elmwood Suites,357 Elm St,Residential,12,1350000,2017-09-22,Paul Hill,p.hill@email.com,555-0128,1402,1750,2025-04-28,Current,0
+Birch Street Lofts,486 Birch Blvd,Residential,15,2300000,2021-03-17,Dorothy Scott,d.scott@email.com,555-0129,1501,2100,2025-08-30,Current,0
+Birch Street Lofts,486 Birch Blvd,Residential,15,2300000,2021-03-17,Mark Green,m.green@email.com,555-0130,1502,2100,2025-02-14,Current,0
+Magnolia Terrace,597 Magnolia Dr,Residential,21,1600000,2019-12-03,Sandra Adams,sandra.a@email.com,555-0131,1601,1850,2025-06-14,Current,0
+Magnolia Terrace,597 Magnolia Dr,Residential,21,1600000,2019-12-03,Donald Baker,d.baker@email.com,555-0132,1602,1850,2025-07-31,Current,0
+Sycamore Square,624 Sycamore Ave,Commercial,9,3600000,2018-07-19,Ashley Nelson,ashley.n@email.com,555-0133,1701,2700,2025-03-14,Current,0
+Sycamore Square,624 Sycamore Ave,Commercial,9,3600000,2018-07-19,Kevin Carter,k.carter@email.com,555-0134,1702,2700,2025-05-31,Current,150
+Aspen Heights,735 Aspen Lane,Residential,16,1150000,2020-05-28,Kimberly Mitchell,kim.m@email.com,555-0135,1801,1500,2025-04-28,Current,0
+Aspen Heights,735 Aspen Lane,Residential,16,1150000,2020-05-28,Brian Perez,b.perez@email.com,555-0136,1802,1500,2024-12-31,Current,0
+Redwood Towers,846 Redwood Rd,Residential,28,1450000,2021-08-11,Melissa Roberts,mel.roberts@email.com,555-0137,1901,1450,2025-06-14,Current,0
+Redwood Towers,846 Redwood Rd,Residential,28,1450000,2021-08-11,George Turner,g.turner@email.com,555-0138,1902,1450,2025-08-31,Current,0
+Cherry Blossom Court,957 Cherry St,Residential,19,1300000,2019-04-16,Donna Phillips,d.phillips@email.com,555-0139,2001,1600,2025-04-28,Current,0
+Cherry Blossom Court,957 Cherry St,Residential,19,1300000,2019-04-16,Edward Campbell,ed.campbell@email.com,555-0140,2002,1600,2025-09-30,Current,0
+Hickory Hill Estates,168 Hickory Hill,Residential,17,1550000,2020-11-23,Carol Parker,carol.p@email.com,555-0141,2101,1800,2025-03-14,Current,-100
+Hickory Hill Estates,168 Hickory Hill,Residential,17,1550000,2020-11-23,Jason Evans,j.evans@email.com,555-0142,2102,1800,2025-06-30,Current,0
+Poplar Place,279 Poplar Ave,Residential,13,900000,2022-02-07,Michelle Edwards,michelle.e@email.com,555-0143,2201,1250,2025-05-31,Current,0
+Poplar Place,279 Poplar Ave,Residential,13,900000,2022-02-07,Ryan Collins,r.collins@email.com,555-0144,2202,1250,2025-08-14,Current,0
+Juniper Junction,381 Juniper Rd,Commercial,7,4500000,2017-06-30,Laura Stewart,laura.s@email.com,555-0145,2301,3200,2025-02-28,Current,0
+Juniper Junction,381 Juniper Rd,Commercial,7,4500000,2017-06-30,Justin Morris,justin.m@email.com,555-0146,2302,3200,2025-07-14,Current,0
+Spruce Street Studios,492 Spruce St,Residential,11,1050000,2021-09-19,Rebecca Rogers,becky.r@email.com,555-0147,2401,1350,2025-06-30,Current,0
+Spruce Street Studios,492 Spruce St,Residential,11,1050000,2021-09-19,Gary Reed,g.reed@email.com,555-0148,2402,1350,2025-03-14,Current,0
+Cypress Gardens,513 Cypress Way,Residential,23,1400000,2019-01-21,Deborah Cook,deb.cook@email.com,555-0149,2501,1550,2025-05-14,Current,350
+Cypress Gardens,513 Cypress Way,Residential,23,1400000,2019-01-21,Jeffrey Morgan,jeff.m@email.com,555-0150,2502,1550,2025-09-30,Current,0

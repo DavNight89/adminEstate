@@ -61,7 +61,8 @@ export const navigationItems = [
     label: 'AI Insights', 
     icon: Zap, 
     description: '🤖 Intelligent automation',
-    badge: 'NEW' // ✅ Add badges for new features
+    badge: 'Coming Soon!', // ✅ Add badges for new features
+    isDisabled: true // ✅ Disable access for upcoming features
   },
   { 
     id: 'communication', 

@@ -525,35 +525,26 @@ export default function ApplicationDetails({
           </div>
 
           <div className="flex gap-2">
-            {application.status === 'submitted' && onUpdateStatus && (
-              <button
-                onClick={() => onUpdateStatus(application.id, 'screening')}
-                className="px-4 py-2 bg-yellow-600 text-white rounded hover:bg-yellow-700 transition flex items-center gap-2"
-              >
-                <Shield className="w-4 h-4" />
-                Start Screening
-              </button>
+            {/* Status Change Dropdown - Always visible for editable statuses */}
+            {onUpdateStatus && application.status !== 'withdrawn' && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-gray-700">Change Status:</span>
+                <select
+                  value={application.status}
+                  onChange={(e) => onUpdateStatus(application.id, e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm font-medium"
+                >
+                  <option value="submitted">Submitted</option>
+                  <option value="screening">Screening</option>
+                  <option value="approved">Approved</option>
+                  <option value="conditional">Conditional</option>
+                  <option value="rejected">Rejected</option>
+                  <option value="withdrawn">Withdrawn</option>
+                </select>
+              </div>
             )}
 
-            {application.status === 'screening' && onUpdateStatus && (
-              <>
-                <button
-                  onClick={() => onUpdateStatus(application.id, 'rejected')}
-                  className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition flex items-center gap-2"
-                >
-                  <XCircle className="w-4 h-4" />
-                  Reject
-                </button>
-                <button
-                  onClick={() => onUpdateStatus(application.id, 'approved')}
-                  className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition flex items-center gap-2"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Approve
-                </button>
-              </>
-            )}
-
+            {/* Convert to Tenant button - only for approved applications */}
             {application.status === 'approved' && !application.tenantId && onConvertToTenant && (
               <button
                 onClick={() => onConvertToTenant(application)}
@@ -564,6 +555,7 @@ export default function ApplicationDetails({
               </button>
             )}
 
+            {/* Tenant Converted badge */}
             {application.status === 'approved' && application.tenantId && (
               <div className="px-4 py-2 bg-green-100 text-green-800 rounded flex items-center gap-2">
                 <CheckCircle className="w-4 h-4" />
