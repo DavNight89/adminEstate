@@ -409,16 +409,16 @@ Built with modern technologies and best practices, AdminEstate proves that open-
 
 **Project Status:** Active Development
 **Current Version:** 0.2.0 (Phase 2 Complete)
-**Maintained by:** [Your Name](https://github.com/yourusername)
+**Maintained by:** [Your Name](https://github.com/DavNikco89)
 
 ---
 
 ## Contact
 
-- **GitHub:** [@yourusername](https://github.com/yourusername)
+- **GitHub:** [@yourusername](https://github.com/DavNikco89)
 - **Email:** your.email@example.com
-- **LinkedIn:** [Your Profile](https://linkedin.com/in/yourprofile)
-- **Twitter/X:** [@yourhandle](https://twitter.com/yourhandle)
+- **LinkedIn:** [Your Profile](https://linkedin.com/in/davion-johnson-a6aa85199)
+- **Twitter/X:** [@yourhandle](https://twitter.com/DavNikco)
 
 ---
 
