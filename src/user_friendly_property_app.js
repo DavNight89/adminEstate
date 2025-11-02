@@ -19,6 +19,7 @@ import { Properties } from './components/Properties';
 import { Tenants } from './components/Tenants';
 import { WorkOrders } from './components/WorkOrders';
 import { Reports } from './components/Reports';
+import { HelpSupport } from './components/HelpSupport';
 import ApplicationsList from './components/ApplicationsList';
 import ApplicationForm from './components/ApplicationForm';
 import ApplicationDetails from './components/ApplicationDetails';
@@ -564,6 +565,9 @@ const getQuickStats = () => {
 
       case 'reports':
         return <Reports {...commonProps} />;
+
+      case 'help':
+        return <HelpSupport />;
 
       default:
         return <Dashboard {...commonProps} />;

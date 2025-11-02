@@ -9,7 +9,8 @@ import {
   MessageSquare,
   Zap,
   PieChart,
-  ClipboardList
+  ClipboardList,
+  HelpCircle
 } from 'lucide-react';
 
 export const navigationItems = [
@@ -50,19 +51,26 @@ export const navigationItems = [
     icon: DollarSign, 
     description: 'Income & expenses' 
   },
-  { 
-    id: 'analytics', 
-    label: 'Analytics', 
-    icon: BarChart3, 
-    description: 'Occupancy insights' 
+  {
+    id: 'analytics',
+    label: 'Analytics',
+    icon: BarChart3,
+    description: 'Occupancy insights'
   },
-  { 
-    id: 'ai-insights', 
-    label: 'AI Insights', 
-    icon: Zap, 
-    description: '🤖 Intelligent automation',
-    badge: 'Coming Soon!', // ✅ Add badges for new features
-    isDisabled: true // ✅ Disable access for upcoming features
+  {
+    id: 'ai-insights',
+    label: 'AI Insights',
+    icon: Zap,
+    description: '🤖 Predictive analytics & Optimization suggestions',
+    badge: 'Coming Soon!',
+    isDisabled: true
+  },
+  {
+    id: 'help',
+    label: 'Help & Support',
+    icon: HelpCircle,
+    description: 'Get help with AdminEstate',
+    badge: 'AI Assistant'
   },
   { 
     id: 'communication', 

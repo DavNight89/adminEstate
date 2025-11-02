@@ -10,10 +10,11 @@ export const Sidebar = ({
   setIsCollapsed,
   showDescriptions = false // ✅ Optional prop for tooltips
 }) => (
-  <div className={`bg-white shadow-sm border-r border-gray-200 transition-all duration-300 ${
+  <div className={`h-screen bg-white shadow-sm border-r border-gray-200 transition-all duration-300 flex flex-col ${
     isCollapsed ? 'w-16' : 'w-64'
   }`}>
-    <div className="p-4">
+    {/* Header - Fixed */}
+    <div className="p-4 flex-shrink-0">
       <div className="flex items-center justify-between">
         {!isCollapsed && (
           <h1 className="text-xl font-bold text-gray-900">Management</h1>
@@ -27,7 +28,8 @@ export const Sidebar = ({
       </div>
     </div>
 
-    <nav className="mt-8">
+    {/* Navigation - Scrollable */}
+    <nav className="flex-1 overflow-y-auto mt-8">
       {navigationItems.map(item => (
         <div key={item.id} className="relative group">
           <button
@@ -71,8 +73,9 @@ export const Sidebar = ({
       ))}
     </nav>
 
+    {/* User Profile - Fixed at bottom */}
     {!isCollapsed && (
-      <div className="absolute bottom-0 w-64 p-4 border-t border-gray-200">
+      <div className="flex-shrink-0 p-4 border-t border-gray-200 bg-white">
         <div className="flex items-center">
           <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
             <User className="w-4 h-4 text-white" />

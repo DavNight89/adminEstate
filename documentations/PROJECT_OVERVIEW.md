@@ -1,8 +1,8 @@
-# 🏠 Houzi - Modern Property Management Platform
+# 🏠 AdminEstate - Free Property Management Platform
 
 ## 🎯 **Project Overview**
 
-**Houzi** is a full-stack property management application built for real estate professionals and property owners to streamline their operations with modern technology.
+**AdminEstate** is a free, offline-first property management application built for landlords and real estate professionals. Save $360-480 annually compared to subscription-based competitors while getting enterprise-grade features at zero cost.
 
 ## ⚡ **Key Features**
 
@@ -15,6 +15,8 @@
 - **Tenant Database**: Complete tenant information and lease tracking
 - **Occupancy Analytics**: Real-time occupancy rates and trends
 - **Lease Management**: Track lease terms, renewals, and tenant history
+- **CSV Import/Export**: Bulk tenant data operations with property name matching
+- **Automated Risk Scoring**: 0-100 risk assessment with income verification
 
 ### 💰 **Financial Management**
 - **Revenue Tracking**: Monthly revenue per property and unit
@@ -32,29 +34,47 @@
 - **Occupancy Insights**: Interactive charts and trend analysis
 - **Performance Metrics**: Revenue per unit, occupancy rates, and property comparisons
 - **Visual Dashboards**: Donut charts, trend graphs, and performance tables
+- **Pandas-Powered**: Advanced analytics using Python data science libraries
 - **Real-time Updates**: Live data synchronization
 
+### 🤖 **AI-Powered Features**
+- **Help & Support Assistant**: Interactive AI chatbot with comprehensive knowledge base
+- **Smart Keyword Matching**: Context-aware responses for CSV import, screening, finances, and more
+- **Quick Action Buttons**: One-click access to common help topics
+- **Conversation Reset**: "New Question" button to restart help session
+- **AI Insights** (Coming Soon): Predictive analytics and optimization suggestions
+
+### 📋 **Tenant Application Screening**
+- **6-Step Application Process**: Personal info, employment, rental history, references, background, review
+- **Automated Risk Assessment**: Intelligent scoring based on income (3x rent rule), credit, and history
+- **Smart Recommendations**: Auto-approve (80-100), manual review (60-79), decline (0-59)
+- **Flexible Status Management**: Edit application status anytime via dropdown
+- **Complete Application Tracking**: View, edit, approve, reject, or delete applications
+
 ### 📄 **Document Management**
-- **File Upload System**: Support for PDFs, images, and Office documents
-- **Document Categories**: Leases, contracts, receipts, and maintenance records
-- **Preview System**: Built-in document preview and thumbnails
-- **OCR Integration**: Text extraction from uploaded documents
+- **File Upload System**: Support for PDFs, DOCX, images with validation
+- **Document Categories**: Leases, maintenance, financial, legal documents
+- **Smart Upload Modal**: Auto-closes only after successful upload
+- **CSV Migration**: Bulk import properties and tenants with validation
+- **Document Processing**: Python-powered (python-docx) and JavaScript (mammoth.js) support
 
 ## 🛠️ **Technical Architecture**
 
-### **Frontend (React)**
+### **Frontend (React 19)**
 - **Modern React 19**: Latest React with hooks and functional components
 - **Tailwind CSS**: Responsive, mobile-first design system
-- **Lucide Icons**: Professional icon library
+- **Lucide Icons**: Professional icon library (HelpCircle, RotateCcw, and more)
 - **Recharts**: Interactive data visualization
-- **Local Storage**: Offline-first data persistence
+- **IndexedDB & LocalStorage**: Offline-first data persistence
+- **Mammoth.js**: Client-side DOCX processing
 
 ### **Backend (Flask/Python)**
 - **Flask API**: RESTful API with CORS support
-- **Pandas Integration**: Advanced data processing and analytics
+- **Pandas Integration**: Advanced data processing and analytics (superior to JavaScript alternatives)
 - **DataFrame Services**: Structured data management
 - **CSV/JSON Sync**: Seamless data synchronization
-- **File Processing**: Document handling with OCR capabilities
+- **Document Processing**: python-docx for DOCX, PyPDF2 for PDFs, pytesseract for OCR
+- **Python Advantage**: Better document handling than JavaScript (python-docx > mammoth.js)
 
 ### **Data Management**
 - **Multi-Source Sync**: localStorage ↔ JSON ↔ CSV integration
@@ -66,13 +86,19 @@
 
 ### **Modern Interface**
 - **Responsive Design**: Works on desktop, tablet, and mobile
-- **Dark/Light Themes**: Customizable appearance
-- **Intuitive Navigation**: Tab-based interface with clear sections
-- **Smart Search**: Global search across all entities
+- **Intuitive Navigation**: Fixed sidebar with scrollable nav and user profile
+- **Smart Layout**: Flexbox-based sidebar prevents overlap issues
+- **Professional Landing Page**: Interactive screenshots with click-to-enlarge
+- **Badge System**: "AI Assistant", "Coming Soon" status indicators
+- **Disabled State Handling**: Visual feedback for upcoming features
 
 ### **Workflow Optimization**
 - **Quick Actions**: Streamlined property and tenant creation
-- **Bulk Operations**: Mass data import and export
+- **Bulk CSV Operations**: Import/export with automatic validation and property name matching
+- **Smart Modals**: Auto-close only on successful operations with error handling
+- **Application Workflow**: 6-step screening process with automated recommendations
+- **Flexible Status Changes**: Edit application status from any state to any other
+- **Delete Confirmation**: Safety dialogs for destructive actions
 - **Smart Notifications**: Dynamic alerts and reminders
 - **Dashboard Widgets**: Customizable information display
 
@@ -123,26 +149,86 @@ python app_frontend_compatible.py
 
 ## 🔄 **Current Status**
 
-- ✅ **Core Features**: Property, tenant, financial management
-- ✅ **Analytics Dashboard**: Real-time metrics and charts
-- ✅ **Data Sync**: Multi-source data integration
-- ✅ **Document System**: File upload and management
-- 🔄 **In Development**: Mobile app, API integrations
-- 📋 **Planned**: Automated rent collection, tenant portal
+### ✅ **Completed Features**
+- **Core Management**: Property, tenant, financial tracking
+- **Tenant Screening**: 6-step application process with risk scoring
+- **Analytics Dashboard**: Real-time metrics and Pandas-powered insights
+- **CSV Migration**: Bulk import/export with property name matching
+- **Document Management**: Smart upload modals with validation
+- **Help & Support**: AI-powered assistant with knowledge base
+- **Landing Page**: 10 interactive screenshots with click-to-enlarge
+- **Sidebar Layout**: Proper flexbox structure with no overlap
+
+### 🔄 **In Development**
+- AI Insights: Predictive analytics and optimization suggestions
+
+### 📋 **Planned**
+- Mobile app
+- Automated rent collection
+- Tenant portal
+- Cloud sync (optional, maintaining offline-first)
 
 ## 🏆 **Competitive Advantages**
 
-1. **Modern Technology Stack**: Latest React and Python frameworks
-2. **Offline-First Design**: Works without internet connectivity
-3. **Real-time Analytics**: Live data updates and insights
-4. **Flexible Data Sources**: Multiple sync options for existing data
-5. **Open Architecture**: Extensible and customizable platform
+1. **100% Free Forever**: $0 cost vs $360-480/year for competitors (TenantCloud, Avail, RentRedi)
+2. **Complete Data Ownership**: Your data stays on your device, not in the cloud
+3. **Offline-First Design**: Works without internet connectivity
+4. **Advanced Tenant Screening**: Automated risk scoring not available in competitors
+5. **Python-Powered Analytics**: Pandas integration superior to JavaScript alternatives
+6. **Smart CSV Migration**: Automatic validation and property name matching
+7. **AI Help Assistant**: Built-in support chatbot for troubleshooting
+8. **Modern Technology Stack**: React 19, Python/Flask, Tailwind CSS
+9. **Open Source**: MIT License, fully customizable
+10. **No Limits**: Unlimited properties, tenants, and data
+
+## 🎨 **Recent Improvements**
+
+### **November 2025 Updates**
+1. **Document Upload Enhancement**
+   - Modal auto-closes only after successful upload
+   - Comprehensive validation (file, category required)
+   - Error handling keeps modal open on failure
+
+2. **Tenant Application System**
+   - Full 6-step screening workflow
+   - Automated risk scoring (0-100 scale)
+   - Income verification (3x rent rule)
+   - Editable status dropdown (any state to any state)
+   - Delete applications with confirmation
+
+3. **Help & Support AI Assistant**
+   - Interactive chatbot interface
+   - 8 comprehensive knowledge base topics
+   - 6 quick action buttons
+   - Smart keyword matching
+   - "New Question" reset button
+   - Typing indicators for better UX
+
+4. **Landing Page Enhancements**
+   - 10 interactive screenshots
+   - Click-to-enlarge functionality
+   - Beautiful bento grid layout
+   - Hover zoom effects
+
+5. **Sidebar Layout Fix**
+   - Proper flexbox structure (header/nav/profile)
+   - Scrollable navigation area
+   - No overlap with user profile
+   - Disabled state for upcoming features
+
+6. **CSV Import/Export**
+   - Property name matching between files
+   - Data validation on import
+   - Preserves all fields (email, phone, rent, etc.)
+   - Combined property/tenant CSV support
 
 ---
 
-**Houzi** combines the power of modern web technology with practical property management needs, delivering a comprehensive solution that scales from individual landlords to professional management companies.
+**AdminEstate** combines the power of modern web technology with practical property management needs, delivering a comprehensive FREE solution that scales from individual landlords to professional management companies.
 
-## 📞 **Contact**
+## 📞 **Contact & Links**
 - **Developer**: DavNight89
-- **Project**: User-Friendly Property App
-- **GitHub**: [Repository Link]
+- **Project**: AdminEstate (formerly Houzi)
+- **GitHub**: https://github.com/DavNight89/adminEstate
+- **GitHub Pages**: https://davnight89.github.io/adminEstate/
+- **License**: MIT License - Free & Open Source
