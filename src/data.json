@@ -223,8 +223,141 @@
       "updated_at": "2025-11-01T03:37:59.268Z"
     }
   ],
-  "workOrders": [],
+  "workOrders": [
+    {
+      "id": 1762622856797,
+      "property": "Sunset Apartments",
+      "tenant": "Mock Tenant",
+      "unit": "A101",
+      "issue": "cat on bed",
+      "description": "cat will not leave bed",
+      "category": "pest",
+      "priority": "normal",
+      "status": "Pending",
+      "date": "2025-11-08",
+      "location": "Master bedroom",
+      "accessInstructions": "",
+      "preferredTime": "morning",
+      "photos": [
+        "/uploads/maintenance/1762622805549_Huggo.jpg"
+      ],
+      "source": "tenant_portal",
+      "messageId": 1762622829275,
+      "submittedAt": "2025-11-08T11:27:09.279702",
+      "approvedAt": "2025-11-08T11:27:36.798907",
+      "updatedAt": "2025-11-08T11:27:36.798918"
+    }
+  ],
   "transactions": [],
   "documents": [],
-  "applications": []
+  "applications": [
+    {
+      "id": 1761997633947,
+      "status": "screening",
+      "submittedDate": "2025-11-01T11:47:13.947Z",
+      "firstName": "Farah ",
+      "lastName": "Celente",
+      "email": "farah@zahncompanies.net",
+      "phone": "515-798-3721",
+      "dateOfBirth": "1970-07-19",
+      "ssn": "",
+      "propertyId": "1761968090215",
+      "propertyName": "",
+      "desiredUnit": "",
+      "desiredMoveInDate": "2025-11-10",
+      "leaseTerm": 12,
+      "currentEmployer": "Zahn Companies",
+      "jobTitle": "Analyst",
+      "employmentStartDate": "2018-09-21",
+      "monthlyIncome": 7000,
+      "employerPhone": "515-349-7264",
+      "additionalIncome": [],
+      "currentAddress": {
+        "street": "918 13rd St. N ",
+        "city": "Westmore",
+        "state": "MN",
+        "zip": "87250",
+        "landlordName": "",
+        "landlordPhone": "",
+        "monthlyRent": 2400,
+        "moveInDate": "2019-07-18"
+      },
+      "previousAddresses": [],
+      "emergencyContact": {
+        "name": "Vikki",
+        "relationship": "friend",
+        "phone": "515-672-1470"
+      },
+      "personalReferences": [
+        {
+          "name": "Zen",
+          "relationship": "manager",
+          "phone": "",
+          "email": ""
+        }
+      ],
+      "occupants": [],
+      "pets": [
+        {
+          "type": "cat",
+          "breed": "",
+          "weight": 15
+        }
+      ],
+      "vehicles": [
+        {
+          "make": "Lexus",
+          "model": "Z3",
+          "licensePlate": "OM6791"
+        }
+      ],
+      "hasEvictions": false,
+      "hasBankruptcy": false,
+      "hasCriminalHistory": false,
+      "disclosureNotes": "",
+      "backgroundCheckConsent": true,
+      "creditCheckConsent": true,
+      "consentSignature": "Farah Celente",
+      "consentDate": null,
+      "documents": [],
+      "screeningId": null,
+      "reviewedBy": null,
+      "reviewedDate": null,
+      "decisionReason": "",
+      "tenantId": null,
+      "createdAt": "2025-11-01T11:47:13.947Z",
+      "updatedAt": "2025-11-01T11:47:13.947Z",
+      "lastUpdated": "2025-11-01T12:31:17.456Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1762622829275,
+      "from": "Mock Tenant",
+      "fromEmail": "b@eastate.com",
+      "property": "Sunset Apartments",
+      "unit": "A101",
+      "subject": "Maintenance Request: cat on bed",
+      "message": "cat will not leave bed",
+      "date": "2025-11-08",
+      "time": "11:27 AM",
+      "read": true,
+      "type": "maintenance_request",
+      "status": "approved",
+      "maintenanceData": {
+        "title": "cat on bed",
+        "category": "pest",
+        "priority": "normal",
+        "location": "Master bedroom",
+        "accessInstructions": "",
+        "preferredTime": "morning",
+        "photos": [
+          "/uploads/maintenance/1762622805549_Huggo.jpg"
+        ]
+      },
+      "workOrderId": 1762622856797,
+      "submittedAt": "2025-11-08T11:27:09.279702",
+      "approvedAt": "2025-11-08T11:27:36.798939"
+    }
+  ]
 }

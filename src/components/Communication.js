@@ -1,20 +1,280 @@
-import React from 'react';
-import { 
-  Plus, 
-  Bell, 
-  Calendar, 
-  AlertTriangle, 
-  MessageSquare 
+import React, { useState, useEffect } from 'react';
+import {
+  Plus,
+  Bell,
+  Calendar,
+  AlertTriangle,
+  MessageSquare,
+  Wrench,
+  CheckCircle,
+  XCircle
 } from 'lucide-react';
 
-export const Communication = () => (
+export const Communication = () => {
+  const [messages, setMessages] = useState([]);
+  const [selectedMessage, setSelectedMessage] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [approving, setApproving] = useState(false);
+  const [showNewMessageModal, setShowNewMessageModal] = useState(false);
+  const [showReplyModal, setShowReplyModal] = useState(false);
+  const [newMessage, setNewMessage] = useState({ tenantEmail: '', subject: '', message: '' });
+  const [replyText, setReplyText] = useState('');
+  const [sending, setSending] = useState(false);
+  const [tenants, setTenants] = useState([]);
+  const selectedMessageIdRef = React.useRef(null);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    selectedMessageIdRef.current = selectedMessage?.id || null;
+  }, [selectedMessage]);
+
+  const fetchMessages = React.useCallback(async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/messages');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const newMessages = data.data || [];
+          setMessages(newMessages);
+
+          // If a message is currently selected, update it with fresh data
+          const currentSelectedId = selectedMessageIdRef.current;
+          if (currentSelectedId) {
+            const updatedSelectedMessage = newMessages.find(m => m.id === currentSelectedId);
+            if (updatedSelectedMessage) {
+              setSelectedMessage(updatedSelectedMessage);
+            }
+          } else if (newMessages.length > 0) {
+            // If no message is selected, select the first one
+            setSelectedMessage(newMessages[0]);
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchMessages();
+    fetchTenants();
+    // Poll for new messages every 5 seconds
+    const interval = setInterval(fetchMessages, 5000);
+    return () => clearInterval(interval);
+  }, [fetchMessages]);
+
+  const fetchTenants = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/tenants');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setTenants(data.data || []);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching tenants:', error);
+    }
+  };
+
+  const handleApproveMaintenanceRequest = async (messageId) => {
+    if (!window.confirm('Approve this maintenance request and create a work order?')) {
+      return;
+    }
+
+    setApproving(true);
+    try {
+      const response = await fetch(`http://localhost:5000/api/maintenance/approve/${messageId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        alert(`✓ Maintenance request approved! Work Order #${data.data.workOrder.id} created.`);
+        // Refresh messages
+        await fetchMessages();
+        // Update selected message
+        const updatedMessage = messages.find(m => m.id === messageId);
+        if (updatedMessage) {
+          updatedMessage.status = 'approved';
+          updatedMessage.workOrderId = data.data.workOrder.id;
+          setSelectedMessage(updatedMessage);
+        }
+      } else {
+        alert(`Failed to approve request: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error approving maintenance request:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setApproving(false);
+    }
+  };
+
+  const getMessageInitials = (from) => {
+    if (!from) return '??';
+    const names = from.split(' ');
+    return names.map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  };
+
+  const getMessageGradient = (index) => {
+    const gradients = [
+      'from-blue-500 to-purple-600',
+      'from-green-500 to-blue-500',
+      'from-purple-500 to-pink-500',
+      'from-yellow-500 to-orange-500',
+      'from-red-500 to-pink-500'
+    ];
+    return gradients[index % gradients.length];
+  };
+
+  const formatTimeAgo = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffMins < 1) return 'Just now';
+    if (diffMins < 60) return `${diffMins} min ago`;
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return date.toLocaleDateString();
+  };
+
+  const handleSendNewMessage = async () => {
+    if (!newMessage.tenantEmail || !newMessage.subject.trim() || !newMessage.message.trim()) {
+      alert('Please fill in all fields');
+      return;
+    }
+
+    setSending(true);
+    try {
+      const selectedTenant = tenants.find(t => t.email === newMessage.tenantEmail);
+      if (!selectedTenant) {
+        alert('Tenant not found');
+        return;
+      }
+
+      const response = await fetch('http://localhost:5000/api/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Property Manager',
+          fromEmail: 'manager@adminestate.com',
+          to: selectedTenant.name,
+          toEmail: selectedTenant.email,
+          property: selectedTenant.property,
+          unit: selectedTenant.unit,
+          subject: newMessage.subject,
+          message: newMessage.message
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setShowNewMessageModal(false);
+        setNewMessage({ tenantEmail: '', subject: '', message: '' });
+        await fetchMessages();
+        alert('Message sent successfully!');
+      } else {
+        alert(`Failed to send message: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSendReply = async () => {
+    if (!replyText.trim() || !selectedMessage) return;
+
+    setSending(true);
+    try {
+      const response = await fetch('http://localhost:5000/api/messages/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Property Manager',
+          fromEmail: 'manager@adminestate.com',
+          to: selectedMessage.from,
+          toEmail: selectedMessage.fromEmail,
+          property: selectedMessage.property,
+          unit: selectedMessage.unit,
+          subject: `RE: ${selectedMessage.subject}`,
+          message: replyText,
+          replyTo: selectedMessage.id
+        })
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setReplyText('');
+        await fetchMessages();
+        alert('Reply sent successfully!');
+      } else {
+        alert(`Failed to send reply: ${data.error}`);
+      }
+    } catch (error) {
+      console.error('Error sending reply:', error);
+      alert('Network error. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const markAsRead = async (messageId) => {
+    try {
+      await fetch(`http://localhost:5000/api/messages/${messageId}/read`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      // Update local state
+      setMessages(messages.map(m => m.id === messageId ? { ...m, read: true } : m));
+    } catch (error) {
+      console.error('Error marking message as read:', error);
+    }
+  };
+
+  const handleMessageClick = (message) => {
+    setSelectedMessage(message);
+    if (!message.read) {
+      markAsRead(message.id);
+    }
+  };
+
+  const unreadCount = messages.filter(m => !m.read).length;
+
+  return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Communication Center</h2>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-3">
+            Communication Center
+            {unreadCount > 0 && (
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                {unreadCount} unread
+              </span>
+            )}
+          </h2>
           <p className="text-gray-600">Stay connected with your tenants</p>
         </div>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition-colors">
+        <button
+          onClick={() => setShowNewMessageModal(true)}
+          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center transition-colors"
+        >
           <Plus className="w-4 h-4 mr-2" />
           New Message
         </button>
@@ -26,69 +286,201 @@ export const Communication = () => (
           <div className="p-4 border-b border-gray-200">
             <h3 className="font-semibold">Recent Messages</h3>
           </div>
-          <div className="space-y-0">
-            <div className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  JS
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">John Smith</p>
-                  <p className="text-sm text-gray-500 truncate">Thank you for fixing the...</p>
-                  <p className="text-xs text-gray-400">2 hours ago</p>
-                </div>
-                <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+          <div className="space-y-0 max-h-96 overflow-y-auto">
+            {loading ? (
+              <div className="p-8 text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+                <p className="text-sm text-gray-600 mt-2">Loading...</p>
               </div>
-            </div>
-            <div className="p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-medium text-sm">
-                  SJ
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-900">Sarah Johnson</p>
-                  <p className="text-sm text-gray-500 truncate">When can someone look at...</p>
-                  <p className="text-xs text-gray-400">1 day ago</p>
-                </div>
+            ) : messages.length === 0 ? (
+              <div className="p-8 text-center">
+                <MessageSquare className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                <p className="text-sm text-gray-600">No messages yet</p>
               </div>
-            </div>
+            ) : (
+              messages.map((message, index) => (
+                <div
+                  key={message.id}
+                  onClick={() => handleMessageClick(message)}
+                  className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
+                    selectedMessage?.id === message.id ? 'bg-blue-50' : ''
+                  }`}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-10 h-10 bg-gradient-to-r ${getMessageGradient(index)} rounded-full flex items-center justify-center text-white font-medium text-sm relative`}>
+                      {message.type === 'maintenance_request' && (
+                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-orange-500 rounded-full flex items-center justify-center">
+                          <Wrench className="w-3 h-3 text-white" />
+                        </div>
+                      )}
+                      {getMessageInitials(message.from)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm font-medium text-gray-900">{message.from}</p>
+                        {message.type === 'maintenance_request' && message.status === 'pending_approval' && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 font-medium">
+                            Pending
+                          </span>
+                        )}
+                        {message.type === 'maintenance_request' && message.status === 'approved' && (
+                          <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-800 font-medium">
+                            Approved
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-500 truncate">{message.subject || message.message}</p>
+                      <p className="text-xs text-gray-400">{formatTimeAgo(message.submittedAt || message.date)}</p>
+                    </div>
+                    {!message.read && (
+                      <div className="w-2 h-2 bg-blue-600 rounded-full"></div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
         {/* Message Thread */}
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
-          <div className="p-4 border-b border-gray-200">
-            <h3 className="font-semibold">John Smith - Unit A101</h3>
-            <p className="text-sm text-gray-600">Sunset Apartments</p>
-          </div>
-          
-          <div className="flex-1 p-4 space-y-4 max-h-96 overflow-y-auto">
-            <div className="flex justify-end">
-              <div className="bg-blue-600 text-white p-3 rounded-lg max-w-xs">
-                <p className="text-sm">Hi John, we've scheduled the plumber for tomorrow morning. Thanks for your patience!</p>
-                <p className="text-xs opacity-75 mt-1">2:30 PM</p>
+          {selectedMessage ? (
+            <>
+              <div className="p-4 border-b border-gray-200">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h3 className="font-semibold flex items-center gap-2">
+                      {selectedMessage.from} - {selectedMessage.unit}
+                      {selectedMessage.type === 'maintenance_request' && (
+                        <Wrench className="w-4 h-4 text-orange-600" />
+                      )}
+                    </h3>
+                    <p className="text-sm text-gray-600">{selectedMessage.property}</p>
+                    <p className="text-sm font-medium text-gray-900 mt-2">{selectedMessage.subject}</p>
+                  </div>
+                  {selectedMessage.type === 'maintenance_request' && selectedMessage.status === 'pending_approval' && (
+                    <button
+                      onClick={() => handleApproveMaintenanceRequest(selectedMessage.id)}
+                      disabled={approving}
+                      className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      <CheckCircle className="w-4 h-4" />
+                      {approving ? 'Approving...' : 'Approve & Create Work Order'}
+                    </button>
+                  )}
+                  {selectedMessage.type === 'maintenance_request' && selectedMessage.status === 'approved' && selectedMessage.workOrderId && (
+                    <div className="flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-lg">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="text-sm font-medium">Work Order #{selectedMessage.workOrderId}</span>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-            <div className="flex justify-start">
-              <div className="bg-gray-200 text-gray-900 p-3 rounded-lg max-w-xs">
-                <p className="text-sm">Thank you for fixing the faucet so quickly! Everything is working perfectly now.</p>
-                <p className="text-xs opacity-75 mt-1">4:15 PM</p>
-              </div>
-            </div>
-          </div>
 
-          <div className="p-4 border-t border-gray-200">
-            <div className="flex space-x-2">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
-              />
-              <button className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                Send
-              </button>
+              <div className="flex-1 p-4 space-y-4 max-h-96 overflow-y-auto">
+                {/* Original Message */}
+                <div className="flex justify-start">
+                  <div className="bg-gray-100 text-gray-900 p-4 rounded-lg max-w-xl">
+                    <p className="text-sm font-medium mb-2">{selectedMessage.subject}</p>
+                    <p className="text-sm whitespace-pre-wrap">{selectedMessage.message}</p>
+
+                    {/* Maintenance Request Details */}
+                    {selectedMessage.type === 'maintenance_request' && selectedMessage.maintenanceData && (
+                      <div className="mt-4 pt-4 border-t border-gray-200 space-y-2">
+                        <div className="flex gap-2 flex-wrap">
+                          <span className={`text-xs px-2 py-1 rounded-full font-medium ${
+                            selectedMessage.maintenanceData.priority === 'urgent' ? 'bg-red-100 text-red-800' :
+                            selectedMessage.maintenanceData.priority === 'high' ? 'bg-orange-100 text-orange-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {selectedMessage.maintenanceData.priority} Priority
+                          </span>
+                          <span className="text-xs px-2 py-1 rounded-full font-medium bg-purple-100 text-purple-800">
+                            {selectedMessage.maintenanceData.category}
+                          </span>
+                        </div>
+                        {selectedMessage.maintenanceData.location && (
+                          <p className="text-xs text-gray-600">
+                            <strong>Location:</strong> {selectedMessage.maintenanceData.location}
+                          </p>
+                        )}
+                        {selectedMessage.maintenanceData.preferredTime && (
+                          <p className="text-xs text-gray-600">
+                            <strong>Preferred Time:</strong> {selectedMessage.maintenanceData.preferredTime}
+                          </p>
+                        )}
+                        {selectedMessage.maintenanceData.accessInstructions && (
+                          <p className="text-xs text-gray-600">
+                            <strong>Access Instructions:</strong> {selectedMessage.maintenanceData.accessInstructions}
+                          </p>
+                        )}
+                        {selectedMessage.maintenanceData.photos && selectedMessage.maintenanceData.photos.length > 0 && (
+                          <div className="mt-3">
+                            <p className="text-xs text-gray-600 mb-2"><strong>Photos:</strong></p>
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                              {selectedMessage.maintenanceData.photos.map((photoPath, idx) => (
+                                <img
+                                  key={idx}
+                                  src={`http://localhost:5000${photoPath}`}
+                                  alt={`Maintenance photo ${idx + 1}`}
+                                  className="w-full h-24 object-cover rounded border border-gray-200 cursor-pointer hover:opacity-75 transition-opacity"
+                                  onClick={() => window.open(`http://localhost:5000${photoPath}`, '_blank')}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    <p className="text-xs text-gray-500 mt-2">
+                      {selectedMessage.time} • {selectedMessage.date}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Approval notification if approved */}
+                {selectedMessage.status === 'approved' && (
+                  <div className="flex justify-end">
+                    <div className="bg-green-600 text-white p-3 rounded-lg max-w-xl">
+                      <p className="text-sm">
+                        ✓ Approved and converted to Work Order #{selectedMessage.workOrderId}. We will address this issue as soon as possible.
+                      </p>
+                      <p className="text-xs opacity-75 mt-1">{selectedMessage.time}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="p-4 border-t border-gray-200">
+                <div className="flex space-x-2">
+                  <input
+                    type="text"
+                    value={replyText}
+                    onChange={(e) => setReplyText(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSendReply()}
+                    placeholder="Type your reply..."
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+                    disabled={sending}
+                  />
+                  <button
+                    onClick={handleSendReply}
+                    disabled={!replyText.trim() || sending}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {sending ? 'Sending...' : 'Send'}
+                  </button>
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center p-12">
+              <div className="text-center">
+                <MessageSquare className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <p className="text-gray-600">Select a message to view</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
@@ -118,5 +510,93 @@ export const Communication = () => (
           </button>
         </div>
       </div>
+
+      {/* New Message Modal */}
+      {showNewMessageModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div className="p-6">
+              <h3 className="text-lg font-bold text-gray-900 mb-4">Send New Message</h3>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Select Tenant
+                  </label>
+                  <select
+                    value={newMessage.tenantEmail}
+                    onChange={(e) => setNewMessage({ ...newMessage, tenantEmail: e.target.value })}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  >
+                    <option value="">Choose a tenant...</option>
+                    {tenants.map((tenant) => (
+                      <option key={tenant.id} value={tenant.email}>
+                        {tenant.name} - {tenant.property}, Unit {tenant.unit}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    value={newMessage.subject}
+                    onChange={(e) => setNewMessage({ ...newMessage, subject: e.target.value })}
+                    placeholder="Enter message subject..."
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    value={newMessage.message}
+                    onChange={(e) => setNewMessage({ ...newMessage, message: e.target.value })}
+                    placeholder="Type your message..."
+                    rows={6}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  onClick={() => {
+                    setShowNewMessageModal(false);
+                    setNewMessage({ tenantEmail: '', subject: '', message: '' });
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  disabled={sending}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSendNewMessage}
+                  disabled={!newMessage.tenantEmail || !newMessage.subject.trim() || !newMessage.message.trim() || sending}
+                  className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {sending ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Send Message</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
+};

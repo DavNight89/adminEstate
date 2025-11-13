@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { safeLocalStorage, loadFromIndexedDB, saveToIndexedDB } from '../utils/storage';
 import initialData from '../data.json';
 import apiService from '../services/apiService';
-import { documentService } from '../services/documentService';
 
 export const usePropertyData = () => {
   // ===== DATA STATE =====
@@ -680,43 +679,48 @@ export const usePropertyData = () => {
     }
 
     try {
-      // Convert file to base64 for storage
-      const fileContent = await documentService.fileToBase64(file);
+      // Upload file to backend first
+      const formData = new FormData();
+      formData.append('file', file);
 
-      if (!fileContent) {
-        console.error('Failed to convert file to base64');
-        return;
+      const uploadResponse = await fetch('http://localhost:5000/api/upload/document', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload file to server');
       }
 
-      // Create document object with file content
+      const uploadResult = await uploadResponse.json();
+
+      if (!uploadResult.success) {
+        throw new Error(uploadResult.error || 'Upload failed');
+      }
+
+      // Create document object with file path (NOT base64)
       const newDocument = {
         id: Date.now().toString(),
-        name: file.name,
-        type: file.type || file.name.split('.').pop().toUpperCase(),
+        name: uploadResult.data.originalName,
+        type: uploadResult.data.type,
         size: file.size,
         category: category || 'general',
         property: property || 'All Properties',
         dateAdded: new Date().toISOString(),
         uploadedBy: 'Current User',
-        fileContent: fileContent,  // ✅ Save the actual file content
-        url: fileContent  // ✅ Also set URL for compatibility
+        filePath: uploadResult.data.path,  // ✅ Store path, not base64
+        url: `http://localhost:5000${uploadResult.data.path}`  // ✅ Full URL for viewing
       };
 
       // Update documents state
       const updatedDocuments = [...documents, newDocument];
       setDocuments(updatedDocuments);
-      
-      // Save to local storage
+
+      // Save to local storage (without base64 bloat!)
       safeLocalStorage.setItem('documents', JSON.stringify(updatedDocuments));
       saveToIndexedDB('documents', updatedDocuments);
 
-      // Try to sync with backend
-      try {
-        await apiService.addDocument(newDocument);
-        console.log('✅ Document uploaded to backend successfully');
-      } catch (error) {
-        console.log('🔌 Backend offline, document stored locally only');
-      }
+      console.log('✅ Document uploaded successfully:', uploadResult.data.originalName);
 
       return newDocument;
     } catch (error) {

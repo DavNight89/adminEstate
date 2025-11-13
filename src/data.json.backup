@@ -1,0 +1,363 @@
+{
+  "properties": [
+    {
+      "id": 1761968082810,
+      "name": "Sunset Apartments",
+      "address": "123 Main St",
+      "type": "Residential",
+      "units": 24,
+      "occupied": 2,
+      "monthlyRevenue": 3000,
+      "purchasePrice": 1200000,
+      "purchaseDate": "2019-03-15",
+      "status": "Active"
+    },
+    {
+      "id": 1761968090215,
+      "name": "Harbor View Condos",
+      "address": "456 Ocean Ave",
+      "type": "Residential",
+      "units": 18,
+      "occupied": 2,
+      "monthlyRevenue": 3600,
+      "purchasePrice": 2100000,
+      "purchaseDate": "2020-07-22",
+      "status": "Active"
+    },
+    {
+      "id": 1761968097432,
+      "name": "Downtown Plaza",
+      "address": "789 Business Blvd",
+      "type": "Commercial",
+      "units": 12,
+      "occupied": 2,
+      "monthlyRevenue": 5000,
+      "purchasePrice": 3500000,
+      "purchaseDate": "2018-11-30",
+      "status": "Active"
+    },
+    {
+      "id": 1761968104538,
+      "name": "Riverside Towers",
+      "address": "321 River Rd",
+      "type": "Residential",
+      "units": 30,
+      "occupied": 2,
+      "monthlyRevenue": 3200,
+      "purchasePrice": 1800000,
+      "purchaseDate": "2021-02-14",
+      "status": "Active"
+    },
+    {
+      "id": 1761968110938,
+      "name": "Green Valley Complex",
+      "address": "654 Park Lane",
+      "type": "Mixed-Use",
+      "units": 20,
+      "occupied": 2,
+      "monthlyRevenue": 2800,
+      "purchasePrice": 1500000,
+      "purchaseDate": "2019-09-01",
+      "status": "Active"
+    }
+  ],
+  "tenants": [
+    {
+      "id": 1761968195452,
+      "name": "Sarah Johnson",
+      "email": "sarah.j@email.com",
+      "phone": "555-0101",
+      "property": "Sunset Apartments",
+      "unit": "10",
+      "rent": 1500,
+      "leaseStart": "",
+      "leaseEnd": "2025-06-15",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "SJ",
+      "created_at": "2025-11-01T03:36:35.452Z",
+      "updated_at": "2025-11-01T03:36:35.452Z"
+    },
+    {
+      "id": 1761968205257,
+      "name": "Michael Chen",
+      "email": "m.chen@email.com",
+      "phone": "555-0102",
+      "property": "Sunset Apartments",
+      "unit": "9",
+      "rent": 1500,
+      "leaseStart": "",
+      "leaseEnd": "2025-08-20",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "MC",
+      "created_at": "2025-11-01T03:36:45.257Z",
+      "updated_at": "2025-11-01T03:36:45.257Z"
+    },
+    {
+      "id": 1761968212266,
+      "name": "Emily Rodriguez",
+      "email": "emily.r@email.com",
+      "phone": "555-0103",
+      "property": "Harbor View Condos",
+      "unit": "2",
+      "rent": 1800,
+      "leaseStart": "",
+      "leaseEnd": "2025-04-10",
+      "status": "Current",
+      "balance": -150,
+      "avatar": "ER",
+      "created_at": "2025-11-01T03:36:52.266Z",
+      "updated_at": "2025-11-01T03:36:52.266Z"
+    },
+    {
+      "id": 1761968220135,
+      "name": "David Thompson",
+      "email": "d.thompson@email.com",
+      "phone": "555-0104",
+      "property": "Harbor View Condos",
+      "unit": "3",
+      "rent": 1800,
+      "leaseStart": "",
+      "leaseEnd": "2025-07-22",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "DT",
+      "created_at": "2025-11-01T03:37:00.135Z",
+      "updated_at": "2025-11-01T03:37:00.135Z"
+    },
+    {
+      "id": 1761968226900,
+      "name": "Jessica Martinez",
+      "email": "j.martinez@email.com",
+      "phone": "555-0105",
+      "property": "Downtown Plaza",
+      "unit": "1",
+      "rent": 2500,
+      "leaseStart": "",
+      "leaseEnd": "2025-05-18",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "JM",
+      "created_at": "2025-11-01T03:37:06.900Z",
+      "updated_at": "2025-11-01T03:37:06.900Z"
+    },
+    {
+      "id": 1761968233333,
+      "name": "Christopher Lee",
+      "email": "chris.lee@email.com",
+      "phone": "555-0106",
+      "property": "Downtown Plaza",
+      "unit": "2",
+      "rent": 2500,
+      "leaseStart": "",
+      "leaseEnd": "2024-12-31",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "CL",
+      "created_at": "2025-11-01T03:37:13.333Z",
+      "updated_at": "2025-11-01T03:37:13.333Z"
+    },
+    {
+      "id": 1761968240152,
+      "name": "Amanda White",
+      "email": "a.white@email.com",
+      "phone": "555-0107",
+      "property": "Riverside Towers",
+      "unit": "1",
+      "rent": 1600,
+      "leaseStart": "",
+      "leaseEnd": "2025-03-14",
+      "status": "Current",
+      "balance": 250,
+      "avatar": "AW",
+      "created_at": "2025-11-01T03:37:20.152Z",
+      "updated_at": "2025-11-01T03:37:20.152Z"
+    },
+    {
+      "id": 1761968255811,
+      "name": "James Anderson",
+      "email": "j.anderson@email.com",
+      "phone": "555-0108",
+      "property": "Riverside Towers",
+      "unit": "2",
+      "rent": 1600,
+      "leaseStart": "",
+      "leaseEnd": "2025-09-30",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "JA",
+      "created_at": "2025-11-01T03:37:35.811Z",
+      "updated_at": "2025-11-01T03:37:35.811Z"
+    },
+    {
+      "id": 1761968262734,
+      "name": "Maria Garcia",
+      "email": "maria.g@email.com",
+      "phone": "555-0109",
+      "property": "Green Valley Complex",
+      "unit": "1",
+      "rent": 1400,
+      "leaseStart": "",
+      "leaseEnd": "2025-01-25",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "MG",
+      "created_at": "2025-11-01T03:37:42.734Z",
+      "updated_at": "2025-11-01T03:37:42.734Z"
+    },
+    {
+      "id": 1761968279268,
+      "name": "Robert Taylor",
+      "email": "r.taylor@email.com",
+      "phone": "555-0110",
+      "property": "Green Valley Complex",
+      "unit": "2",
+      "rent": 1400,
+      "leaseStart": "",
+      "leaseEnd": "2025-02-28",
+      "status": "Current",
+      "balance": 0,
+      "avatar": "RT",
+      "created_at": "2025-11-01T03:37:59.268Z",
+      "updated_at": "2025-11-01T03:37:59.268Z"
+    }
+  ],
+  "workOrders": [
+    {
+      "id": 1762622856797,
+      "property": "Sunset Apartments",
+      "tenant": "Mock Tenant",
+      "unit": "A101",
+      "issue": "cat on bed",
+      "description": "cat will not leave bed",
+      "category": "pest",
+      "priority": "normal",
+      "status": "Pending",
+      "date": "2025-11-08",
+      "location": "Master bedroom",
+      "accessInstructions": "",
+      "preferredTime": "morning",
+      "photos": [
+        "/uploads/maintenance/1762622805549_Huggo.jpg"
+      ],
+      "source": "tenant_portal",
+      "messageId": 1762622829275,
+      "submittedAt": "2025-11-08T11:27:09.279702",
+      "approvedAt": "2025-11-08T11:27:36.798907",
+      "updatedAt": "2025-11-08T11:27:36.798918"
+    }
+  ],
+  "transactions": [],
+  "documents": [],
+  "applications": [
+    {
+      "id": 1761997633947,
+      "status": "screening",
+      "submittedDate": "2025-11-01T11:47:13.947Z",
+      "firstName": "Farah ",
+      "lastName": "Celente",
+      "email": "farah@zahncompanies.net",
+      "phone": "515-798-3721",
+      "dateOfBirth": "1970-07-19",
+      "ssn": "",
+      "propertyId": "1761968090215",
+      "propertyName": "",
+      "desiredUnit": "",
+      "desiredMoveInDate": "2025-11-10",
+      "leaseTerm": 12,
+      "currentEmployer": "Zahn Companies",
+      "jobTitle": "Analyst",
+      "employmentStartDate": "2018-09-21",
+      "monthlyIncome": 7000,
+      "employerPhone": "515-349-7264",
+      "additionalIncome": [],
+      "currentAddress": {
+        "street": "918 13rd St. N ",
+        "city": "Westmore",
+        "state": "MN",
+        "zip": "87250",
+        "landlordName": "",
+        "landlordPhone": "",
+        "monthlyRent": 2400,
+        "moveInDate": "2019-07-18"
+      },
+      "previousAddresses": [],
+      "emergencyContact": {
+        "name": "Vikki",
+        "relationship": "friend",
+        "phone": "515-672-1470"
+      },
+      "personalReferences": [
+        {
+          "name": "Zen",
+          "relationship": "manager",
+          "phone": "",
+          "email": ""
+        }
+      ],
+      "occupants": [],
+      "pets": [
+        {
+          "type": "cat",
+          "breed": "",
+          "weight": 15
+        }
+      ],
+      "vehicles": [
+        {
+          "make": "Lexus",
+          "model": "Z3",
+          "licensePlate": "OM6791"
+        }
+      ],
+      "hasEvictions": false,
+      "hasBankruptcy": false,
+      "hasCriminalHistory": false,
+      "disclosureNotes": "",
+      "backgroundCheckConsent": true,
+      "creditCheckConsent": true,
+      "consentSignature": "Farah Celente",
+      "consentDate": null,
+      "documents": [],
+      "screeningId": null,
+      "reviewedBy": null,
+      "reviewedDate": null,
+      "decisionReason": "",
+      "tenantId": null,
+      "createdAt": "2025-11-01T11:47:13.947Z",
+      "updatedAt": "2025-11-01T11:47:13.947Z",
+      "lastUpdated": "2025-11-01T12:31:17.456Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1762622829275,
+      "from": "Mock Tenant",
+      "fromEmail": "b@eastate.com",
+      "property": "Sunset Apartments",
+      "unit": "A101",
+      "subject": "Maintenance Request: cat on bed",
+      "message": "cat will not leave bed",
+      "date": "2025-11-08",
+      "time": "11:27 AM",
+      "read": true,
+      "type": "maintenance_request",
+      "status": "approved",
+      "maintenanceData": {
+        "title": "cat on bed",
+        "category": "pest",
+        "priority": "normal",
+        "location": "Master bedroom",
+        "accessInstructions": "",
+        "preferredTime": "morning",
+        "photos": [
+          "/uploads/maintenance/1762622805549_Huggo.jpg"
+        ]
+      },
+      "workOrderId": 1762622856797,
+      "submittedAt": "2025-11-08T11:27:09.279702",
+      "approvedAt": "2025-11-08T11:27:36.798939"
+    }
+  ]
+}

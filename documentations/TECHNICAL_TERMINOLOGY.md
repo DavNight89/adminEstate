@@ -1,8 +1,8 @@
 # Technical Terminology Reference
 ## AdminEstate - Complete Technical Terms Glossary
 
-**Last Updated**: 2025-11-04
-**Total Terms**: 192 unique technical terms
+**Last Updated**: 2025-11-08
+**Total Terms**: 205 unique technical terms
 **Sorted**: Most Technical → Least Technical
 
 ---
@@ -14,7 +14,7 @@
 
 ---
 
-## 🔴 HIGHLY TECHNICAL TERMS (70 terms)
+## 🔴 HIGHLY TECHNICAL TERMS (78 terms)
 
 ### Advanced Computer Science & Algorithms
 1. **Memoization** - Performance optimization caching computed values
@@ -31,17 +31,25 @@
 12. **useEffect Hook** - React hook for side effects
 13. **useState Hook** - React hook for component state
 14. **useContext Hook** - React hook for context API access
-15. **Custom Hooks Pattern** - Reusable React stateful logic
-16. **IndexedDB** - Browser-based NoSQL database for offline storage
-17. **REST API** - Representational State Transfer web architecture
-18. **CORS (Cross-Origin Resource Sharing)** - Browser security policy
-19. **CRUD Operations** - Create, Read, Update, Delete data pattern
-20. **Data Sync** - Bidirectional data synchronization (local ↔ cloud)
-21. **Offline-first Architecture** - App works without internet, syncs later
-22. **Client-side Rendering** - Browser-rendered dynamic content
-23. **State Management** - Centralized application state control
-24. **Context API** - React's built-in state sharing mechanism
-25. **Component Composition** - Building UIs from smaller components
+15. **useRef Hook** - React hook for mutable references that persist across renders
+16. **Custom Hooks Pattern** - Reusable React stateful logic
+17. **IndexedDB** - Browser-based NoSQL database for offline storage
+18. **REST API** - Representational State Transfer web architecture
+19. **CORS (Cross-Origin Resource Sharing)** - Browser security policy
+20. **CRUD Operations** - Create, Read, Update, Delete data pattern
+21. **Data Sync** - Bidirectional data synchronization (local ↔ cloud)
+22. **Offline-first Architecture** - App works without internet, syncs later
+23. **Client-side Rendering** - Browser-rendered dynamic content
+24. **State Management** - Centralized application state control
+25. **Context API** - React's built-in state sharing mechanism
+26. **Component Composition** - Building UIs from smaller components
+27. **Base64 Encoding** - Binary-to-text encoding scheme for embedding files
+28. **File System Storage** - Server-side file storage on disk
+29. **FormData API** - Browser API for encoding form data including files
+30. **Multipart/form-data** - HTTP content type for file uploads
+31. **Closure** - Function with access to outer scope variables
+32. **React Re-render Optimization** - Preventing unnecessary component updates
+33. **Polling** - Repeated checking for updates at intervals
 
 ### Web Technologies & Standards
 26. **JSX (JavaScript XML)** - React's XML-in-JavaScript syntax
@@ -211,15 +219,21 @@
 148. **Occupancy** - Property utilization rate
 149. **Vacancy** - Empty/unrented unit
 150. **Work Order** - Maintenance request
-151. **Maintenance** - Property repairs/upkeep
-152. **Vendor** - Service provider/contractor
-153. **Landlord** - Property owner
-154. **Applicant** - Prospective tenant
-155. **Application** - Tenant request form
-156. **Screening** - Tenant background check
-157. **Deposit** - Security payment
-158. **Transaction** - Financial record entry
-159. **Portfolio** - Property collection
+151. **Maintenance Request** - Tenant-initiated repair/service request
+152. **Maintenance** - Property repairs/upkeep
+153. **Vendor** - Service provider/contractor
+154. **Landlord** - Property owner
+155. **Property Manager** - Person managing properties on behalf of owner
+156. **Applicant** - Prospective tenant
+157. **Application** - Tenant request form
+158. **Screening** - Tenant background check
+159. **Deposit** - Security payment
+160. **Transaction** - Financial record entry
+161. **Portfolio** - Property collection
+162. **Tenant Portal** - Dedicated interface for tenant self-service
+163. **Hybrid Workflow** - Two-step approval process for maintenance requests
+164. **Message Queue** - Pending requests awaiting manager review
+165. **Approval Process** - Manager review before work order creation
 
 ### Financial & Verification
 160. **Income Verification** - Proof of earnings
@@ -528,6 +542,41 @@
 **Category**: Property Metric
 **Definition**: Empty unit without active tenant, available for rent.
 **AdminEstate Usage**: Calculated as (total units - occupied units) for each property.
+
+#### **Tenant Portal**
+**Category**: Property Management Feature
+**Definition**: Dedicated web application interface for tenants to submit maintenance requests, view work order status, and communicate with property managers.
+**AdminEstate Usage**: Separate React app running on port 3003 with authentication, maintenance request submission with photo uploads, and request history viewing.
+
+#### **Hybrid Workflow**
+**Category**: Business Process
+**Definition**: Two-step approval process where tenant maintenance requests create messages (not work orders), requiring manager approval before converting to actionable work orders.
+**AdminEstate Usage**: Tenant submits request → Creates message with type='maintenance_request' → Manager reviews in Communication Center → Manager approves → System creates work order + sends notification.
+
+#### **File Upload System**
+**Category**: Technical Feature
+**Definition**: System for uploading files (documents, photos) to server filesystem instead of embedding as base64 in database, storing only file paths.
+**AdminEstate Usage**: Photos uploaded to `/uploads/maintenance/`, documents to `/uploads/documents/`, with Flask endpoints serving files via HTTP. Prevents JSON bloat and enables efficient file management.
+
+#### **Base64 Encoding**
+**Category**: Data Encoding
+**Definition**: Binary-to-text encoding that converts binary data (images, files) into ASCII text string for embedding in JSON/HTML. Increases size by ~33%.
+**AdminEstate Usage**: Previously used for photo/document storage (causing 5.5MB data.json bloat). Now replaced with file system storage for better performance.
+
+#### **FormData API**
+**Category**: Web API
+**Definition**: Browser API for constructing key/value pairs representing form fields and their values, including file uploads, for submission via fetch/XMLHttpRequest.
+**AdminEstate Usage**: Used in photo uploads (`FormData.append('photo', file)`) and document uploads (`FormData.append('file', file)`) to backend endpoints.
+
+#### **useRef Hook**
+**Category**: React Hook
+**Definition**: React hook returning mutable ref object with `.current` property that persists across renders without causing re-renders when changed. Useful for accessing DOM elements or storing values across interval callbacks.
+**AdminEstate Usage**: Communication.js uses `selectedMessageIdRef` to track selected message across auto-refresh polling intervals, preventing selection from resetting every 5 seconds.
+
+#### **Polling**
+**Category**: Data Synchronization Pattern
+**Definition**: Technique of repeatedly checking for updates at regular intervals (e.g., fetching messages every 5 seconds).
+**AdminEstate Usage**: Communication Center polls `/api/messages` every 5 seconds to display new maintenance requests in real-time without websockets.
 
 ---
 
