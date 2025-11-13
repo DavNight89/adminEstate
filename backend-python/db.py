@@ -388,6 +388,26 @@ def get_all_work_orders() -> List[Dict[str, Any]]:
         return [dict(row) for row in cur.fetchall()]
 
 
+def get_work_order_by_id(work_order_id: int) -> Optional[Dict[str, Any]]:
+    """Get work order by ID"""
+    with get_db_cursor(commit=False) as cur:
+        cur.execute("""
+            SELECT id, property, tenant, unit, issue, description, category,
+                   priority, status, date, location,
+                   access_instructions as "accessInstructions",
+                   preferred_time as "preferredTime",
+                   photos, source,
+                   message_id as "messageId",
+                   submitted_at as "submittedAt",
+                   approved_at as "approvedAt",
+                   updated_at as "updatedAt"
+            FROM work_orders
+            WHERE id = %s
+        """, (work_order_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
 def create_work_order(work_order_data: Dict[str, Any]) -> int:
     """Create new work order and return ID"""
     with get_db_cursor() as cur:
@@ -450,6 +470,146 @@ def get_all_applications() -> List[Dict[str, Any]]:
             ORDER BY submitted_date DESC
         """)
         return [dict(row) for row in cur.fetchall()]
+
+
+def get_application_by_id(application_id: int) -> Optional[Dict[str, Any]]:
+    """Get application by ID"""
+    with get_db_cursor(commit=False) as cur:
+        cur.execute("""
+            SELECT id, status, submitted_date as "submittedDate",
+                   first_name as "firstName", last_name as "lastName",
+                   email, phone, date_of_birth as "dateOfBirth", ssn,
+                   property_id as "propertyId", property_name as "propertyName",
+                   desired_unit as "desiredUnit", desired_move_in_date as "desiredMoveInDate",
+                   lease_term as "leaseTerm", current_employer as "currentEmployer",
+                   job_title as "jobTitle", employment_start_date as "employmentStartDate",
+                   monthly_income as "monthlyIncome", employer_phone as "employerPhone",
+                   additional_income as "additionalIncome", current_address as "currentAddress",
+                   previous_addresses as "previousAddresses", emergency_contact as "emergencyContact",
+                   personal_references as "personalReferences", occupants, pets, vehicles,
+                   has_evictions as "hasEvictions", has_bankruptcy as "hasBankruptcy",
+                   has_criminal_history as "hasCriminalHistory", disclosure_notes as "disclosureNotes",
+                   background_check_consent as "backgroundCheckConsent",
+                   credit_check_consent as "creditCheckConsent",
+                   consent_signature as "consentSignature", consent_date as "consentDate",
+                   documents, screening_id as "screeningId", reviewed_by as "reviewedBy",
+                   reviewed_date as "reviewedDate", decision_reason as "decisionReason",
+                   tenant_id as "tenantId", created_at as "createdAt",
+                   updated_at as "updatedAt", last_updated as "lastUpdated"
+            FROM applications
+            WHERE id = %s
+        """, (application_id,))
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def create_application(application_data: Dict[str, Any]) -> int:
+    """Create new application and return ID"""
+    with get_db_cursor() as cur:
+        # Convert JSONB fields
+        additional_income = Json(application_data.get('additionalIncome', []))
+        current_address = Json(application_data.get('currentAddress', {}))
+        previous_addresses = Json(application_data.get('previousAddresses', []))
+        emergency_contact = Json(application_data.get('emergencyContact', {}))
+        personal_references = Json(application_data.get('personalReferences', []))
+        occupants = Json(application_data.get('occupants', []))
+        pets = Json(application_data.get('pets', []))
+        vehicles = Json(application_data.get('vehicles', []))
+        documents = Json(application_data.get('documents', []))
+
+        cur.execute("""
+            INSERT INTO applications
+            (id, status, submitted_date, first_name, last_name, email, phone, date_of_birth, ssn,
+             property_id, property_name, desired_unit, desired_move_in_date, lease_term,
+             current_employer, job_title, employment_start_date, monthly_income, employer_phone,
+             additional_income, current_address, previous_addresses, emergency_contact,
+             personal_references, occupants, pets, vehicles, has_evictions, has_bankruptcy,
+             has_criminal_history, disclosure_notes, background_check_consent, credit_check_consent,
+             consent_signature, consent_date, documents, screening_id)
+            VALUES
+            (%(id)s, %(status)s, %(submittedDate)s, %(firstName)s, %(lastName)s, %(email)s,
+             %(phone)s, %(dateOfBirth)s, %(ssn)s, %(propertyId)s, %(propertyName)s,
+             %(desiredUnit)s, %(desiredMoveInDate)s, %(leaseTerm)s, %(currentEmployer)s,
+             %(jobTitle)s, %(employmentStartDate)s, %(monthlyIncome)s, %(employerPhone)s,
+             %s, %s, %s, %s, %s, %s, %s, %s, %(hasEvictions)s, %(hasBankruptcy)s,
+             %(hasCriminalHistory)s, %(disclosureNotes)s, %(backgroundCheckConsent)s,
+             %(creditCheckConsent)s, %(consentSignature)s, %(consentDate)s, %s, %(screeningId)s)
+            RETURNING id
+        """, {
+            **application_data,
+            'additionalIncome': additional_income,
+            'currentAddress': current_address,
+            'previousAddresses': previous_addresses,
+            'emergencyContact': emergency_contact,
+            'personalReferences': personal_references,
+            'occupants': occupants,
+            'pets': pets,
+            'vehicles': vehicles,
+            'documents': documents
+        })
+        return cur.fetchone()['id']
+
+
+def update_application(application_id: int, application_data: Dict[str, Any]) -> bool:
+    """Update application"""
+    with get_db_cursor() as cur:
+        # Convert JSONB fields if present
+        jsonb_fields = {}
+        if 'additionalIncome' in application_data:
+            jsonb_fields['additionalIncome'] = Json(application_data['additionalIncome'])
+        if 'currentAddress' in application_data:
+            jsonb_fields['currentAddress'] = Json(application_data['currentAddress'])
+        if 'previousAddresses' in application_data:
+            jsonb_fields['previousAddresses'] = Json(application_data['previousAddresses'])
+        if 'emergencyContact' in application_data:
+            jsonb_fields['emergencyContact'] = Json(application_data['emergencyContact'])
+        if 'personalReferences' in application_data:
+            jsonb_fields['personalReferences'] = Json(application_data['personalReferences'])
+        if 'occupants' in application_data:
+            jsonb_fields['occupants'] = Json(application_data['occupants'])
+        if 'pets' in application_data:
+            jsonb_fields['pets'] = Json(application_data['pets'])
+        if 'vehicles' in application_data:
+            jsonb_fields['vehicles'] = Json(application_data['vehicles'])
+        if 'documents' in application_data:
+            jsonb_fields['documents'] = Json(application_data['documents'])
+
+        cur.execute("""
+            UPDATE applications
+            SET status = %(status)s,
+                first_name = %(firstName)s,
+                last_name = %(lastName)s,
+                email = %(email)s,
+                phone = %(phone)s,
+                property_name = %(propertyName)s,
+                reviewed_by = %(reviewedBy)s,
+                reviewed_date = %(reviewedDate)s,
+                decision_reason = %(decisionReason)s,
+                updated_at = CURRENT_TIMESTAMP
+            WHERE id = %(id)s
+        """, {**application_data, 'id': application_id, **jsonb_fields})
+        return cur.rowcount > 0
+
+
+def delete_application(application_id: int) -> bool:
+    """Delete application"""
+    with get_db_cursor() as cur:
+        cur.execute("DELETE FROM applications WHERE id = %s", (application_id,))
+        return cur.rowcount > 0
+
+
+def get_application_stats() -> Dict[str, Any]:
+    """Get application statistics"""
+    with get_db_cursor(commit=False) as cur:
+        cur.execute("""
+            SELECT
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'screening') as screening,
+                COUNT(*) FILTER (WHERE status = 'approved') as approved,
+                COUNT(*) FILTER (WHERE status = 'rejected') as rejected
+            FROM applications
+        """)
+        return dict(cur.fetchone())
 
 
 # =============================================================================

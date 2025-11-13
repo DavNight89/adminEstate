@@ -69,18 +69,23 @@
 - **Mammoth.js**: Client-side DOCX processing
 
 ### **Backend (Flask/Python)**
-- **Flask API**: RESTful API with CORS support
+- **Flask API**: 26+ RESTful API endpoints with CORS support
+- **PostgreSQL Database**: Enterprise-grade relational database with Docker deployment
+- **Connection Pooling**: psycopg2 connection pool (1-10 connections) for performance
+- **Swagger UI**: Interactive API documentation at /api-docs/ endpoint
 - **Pandas Integration**: Advanced data processing and analytics (superior to JavaScript alternatives)
 - **DataFrame Services**: Structured data management
-- **CSV/JSON Sync**: Seamless data synchronization
 - **Document Processing**: python-docx for DOCX, PyPDF2 for PDFs, pytesseract for OCR
 - **Python Advantage**: Better document handling than JavaScript (python-docx > mammoth.js)
 
-### **Data Management**
-- **Multi-Source Sync**: localStorage ↔ JSON ↔ CSV integration
-- **Real-time Updates**: Continuous data synchronization
-- **Backup Systems**: Automated data backup and recovery
-- **Data Validation**: Input validation and error handling
+### **Database Architecture**
+- **PostgreSQL**: Production-ready database with Docker containerization
+- **7 Core Tables**: properties, tenants, work_orders, messages, applications, transactions, documents
+- **Data Integrity**: Foreign keys, constraints, and validation triggers
+- **JSONB Support**: Flexible storage for complex data (application details, maintenance data)
+- **Migration Tools**: Python scripts for JSON-to-PostgreSQL migration with data validation
+- **Connection Pool**: Efficient database connection management
+- **Backup & Recovery**: PostgreSQL backup capabilities with migration summary views
 
 ## 🎨 **User Experience**
 
@@ -125,13 +130,23 @@
 
 ### **Quick Setup**
 ```bash
-# Frontend
+# 1. Start PostgreSQL with Docker
+docker run --name adminEstate-postgres -e POSTGRES_PASSWORD=admin123 -p 5432:5432 -d postgres
+
+# 2. Initialize Database
+cd backend-python
+psql -U postgres -h localhost < schema.sql
+
+# 3. Migrate Data (if coming from JSON)
+python migrate_to_postgres.py
+
+# 4. Start Backend
+python app_simplex.py
+
+# 5. Start Frontend (in new terminal)
+cd ..
 npm install
 npm start
-
-# Backend
-cd backend-python
-python app_frontend_compatible.py
 ```
 
 ### **First Use**
@@ -150,53 +165,104 @@ python app_frontend_compatible.py
 ## 🔄 **Current Status**
 
 ### ✅ **Completed Features**
-- **Core Management**: Property, tenant, financial tracking
+- **PostgreSQL Database**: Enterprise-grade database with Docker deployment
+- **Swagger API Documentation**: 26+ REST endpoints with interactive UI
+- **Core Management**: Property, tenant, financial tracking with database persistence
+- **Tenant Portal**: Self-service portal with maintenance requests and messaging
 - **Tenant Screening**: 6-step application process with risk scoring
 - **Analytics Dashboard**: Real-time metrics and Pandas-powered insights
 - **CSV Migration**: Bulk import/export with property name matching
 - **Document Management**: Smart upload modals with validation
 - **Help & Support**: AI-powered assistant with knowledge base
-- **Landing Page**: 10 interactive screenshots with click-to-enlarge
-- **Sidebar Layout**: Proper flexbox structure with no overlap
+- **Landing Page**: Interactive screenshots with PostgreSQL/Swagger features
+- **Database Migration**: Tools for JSON-to-PostgreSQL migration
 
 ### 🔄 **In Development**
 - AI Insights: Predictive analytics and optimization suggestions
+- Cloud sync (optional, maintaining offline-first)
 
 ### 📋 **Planned**
-- Mobile app
-- Automated rent collection
-- Tenant portal
-- Cloud sync (optional, maintaining offline-first)
+- Mobile app (iOS/Android)
+- Automated rent collection integration
+- Multi-language support
 
 ## 🏆 **Competitive Advantages**
 
 1. **100% Free Forever**: $0 cost vs $360-480/year for competitors (TenantCloud, Avail, RentRedi)
-2. **Complete Data Ownership**: Your data stays on your device, not in the cloud
-3. **Offline-First Design**: Works without internet connectivity
-4. **Advanced Tenant Screening**: Automated risk scoring not available in competitors
-5. **Python-Powered Analytics**: Pandas integration superior to JavaScript alternatives
-6. **Smart CSV Migration**: Automatic validation and property name matching
-7. **AI Help Assistant**: Built-in support chatbot for troubleshooting
-8. **Modern Technology Stack**: React 19, Python/Flask, Tailwind CSS
-9. **Open Source**: MIT License, fully customizable
-10. **No Limits**: Unlimited properties, tenants, and data
+2. **Enterprise Database**: PostgreSQL with Docker - same database used by Fortune 500 companies
+3. **Complete Data Ownership**: Your data stays on your device, not in the cloud
+4. **Professional API**: 26+ REST endpoints with Swagger documentation
+5. **Tenant Self-Service Portal**: Reduce support requests with tenant-facing portal
+6. **Advanced Tenant Screening**: Automated risk scoring not available in competitors
+7. **Python-Powered Analytics**: Pandas integration superior to JavaScript alternatives
+8. **Database Migration Tools**: Easy transition from JSON/CSV to PostgreSQL
+9. **AI Help Assistant**: Built-in support chatbot for troubleshooting
+10. **Modern Technology Stack**: React 19, PostgreSQL, Docker, Python/Flask, Swagger
+11. **Open Source**: MIT License, fully customizable
+12. **No Limits**: Unlimited properties, tenants, and data
 
 ## 🎨 **Recent Improvements**
 
 ### **November 2025 Updates**
-1. **Document Upload Enhancement**
+
+#### **🐘 PostgreSQL Migration (Major Release)**
+1. **Enterprise Database Architecture**
+   - Migrated from JSON file storage to PostgreSQL relational database
+   - Docker containerization for portable deployment
+   - 7 core tables: properties, tenants, work_orders, messages, applications, transactions, documents
+   - Foreign key relationships and data integrity constraints
+   - Connection pooling (1-10 connections) for optimal performance
+   - JSONB fields for flexible complex data storage
+
+2. **Swagger API Documentation**
+   - Interactive API documentation at `/api-docs/` endpoint
+   - 26+ REST endpoints fully documented with request/response schemas
+   - Categories: Properties, Tenants, Work Orders, Applications, Messages, Analytics, Tenant Portal
+   - Try-it-out functionality for endpoint testing
+   - OpenAPI specification with examples and enums
+
+3. **Database Migration Tools**
+   - `migrate_to_postgres.py` - Automated JSON-to-PostgreSQL migration script
+   - Data validation and error handling during migration
+   - Migration summary view for verification
+   - Preserves all existing data structures
+   - Rollback capabilities for safe migration
+
+4. **Tenant Portal (Self-Service)**
+   - Complete tenant-facing web portal
+   - Maintenance request submission with photo uploads
+   - Secure messaging with property management
+   - Email-based authentication (passwordless login)
+   - Mobile-responsive design
+   - Reduces admin support burden
+
+5. **Backend Modernization**
+   - Updated Flask backend (`app_simplex.py`) with PostgreSQL-first architecture
+   - Enhanced error handling and logging
+   - RESTful API design patterns
+   - JSON fallback support for backwards compatibility
+   - Improved startup messages showing database status
+
+6. **Landing Page Updates**
+   - PostgreSQL + Docker + Swagger feature card highlighting enterprise architecture
+   - Tenant Portal screenshot and feature description
+   - Updated tech stack badges (PostgreSQL, Docker, Swagger)
+   - 12 interactive screenshots with click-to-enlarge
+
+#### **Previous November Updates**
+7. **Document Upload Enhancement**
    - Modal auto-closes only after successful upload
    - Comprehensive validation (file, category required)
    - Error handling keeps modal open on failure
 
-2. **Tenant Application System**
+8. **Tenant Application System**
    - Full 6-step screening workflow
    - Automated risk scoring (0-100 scale)
    - Income verification (3x rent rule)
    - Editable status dropdown (any state to any state)
    - Delete applications with confirmation
 
-3. **Help & Support AI Assistant**
+9. **Help & Support AI Assistant**
    - Interactive chatbot interface
    - 8 comprehensive knowledge base topics
    - 6 quick action buttons
@@ -204,23 +270,11 @@ python app_frontend_compatible.py
    - "New Question" reset button
    - Typing indicators for better UX
 
-4. **Landing Page Enhancements**
-   - 10 interactive screenshots
-   - Click-to-enlarge functionality
-   - Beautiful bento grid layout
-   - Hover zoom effects
-
-5. **Sidebar Layout Fix**
-   - Proper flexbox structure (header/nav/profile)
-   - Scrollable navigation area
-   - No overlap with user profile
-   - Disabled state for upcoming features
-
-6. **CSV Import/Export**
-   - Property name matching between files
-   - Data validation on import
-   - Preserves all fields (email, phone, rent, etc.)
-   - Combined property/tenant CSV support
+10. **CSV Import/Export**
+    - Property name matching between files
+    - Data validation on import
+    - Preserves all fields (email, phone, rent, etc.)
+    - Combined property/tenant CSV support
 
 ---
 

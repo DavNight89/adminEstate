@@ -4,6 +4,7 @@ Supports both PostgreSQL and JSON fallback for flexibility
 """
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
+from flasgger import Swagger
 import json
 from pathlib import Path
 from datetime import datetime
@@ -25,6 +26,46 @@ CORS(app,
      origins=['http://localhost:3000', 'http://127.0.0.1:3000', 'http://localhost:3003', 'http://127.0.0.1:3003'],
      methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
      allow_headers=['Content-Type', 'Authorization'])
+
+# Swagger UI Configuration
+swagger_config = {
+    "headers": [],
+    "specs": [
+        {
+            "endpoint": 'apispec',
+            "route": '/apispec.json',
+            "rule_filter": lambda rule: True,
+            "model_filter": lambda tag: True,
+        }
+    ],
+    "static_url_path": "/flasgger_static",
+    "swagger_ui": True,
+    "specs_route": "/api-docs/"
+}
+
+swagger_template = {
+    "info": {
+        "title": "AdminEstate API",
+        "description": "PostgreSQL-powered property management API with real-time data exploration",
+        "version": "2.0.0"
+    },
+    "host": "localhost:5000",
+    "basePath": "/",
+    "schemes": ["http"],
+    "tags": [
+        {"name": "Properties", "description": "Property management endpoints"},
+        {"name": "Tenants", "description": "Tenant management endpoints"},
+        {"name": "Work Orders", "description": "Maintenance work order endpoints"},
+        {"name": "Transactions", "description": "Financial transaction endpoints"},
+        {"name": "Documents", "description": "Document management endpoints"},
+        {"name": "Applications", "description": "Tenant application processing"},
+        {"name": "Messages", "description": "Communication center"},
+        {"name": "Analytics", "description": "Business intelligence and reporting"},
+        {"name": "Tenant Portal", "description": "Tenant-facing endpoints"}
+    ]
+}
+
+swagger = Swagger(app, config=swagger_config, template=swagger_template)
 
 # Path to data.json
 DATA_FILE = Path(__file__).parent.parent / 'src' / 'data.json'
@@ -89,6 +130,45 @@ def health_check():
 # ===== PROPERTIES ENDPOINTS =====
 @app.route('/api/properties', methods=['GET'])
 def get_properties():
+    """Get all properties from PostgreSQL database
+    ---
+    tags:
+      - Properties
+    responses:
+      200:
+        description: List of all properties
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                  name:
+                    type: string
+                  address:
+                    type: string
+                  type:
+                    type: string
+                  units:
+                    type: integer
+                  occupied:
+                    type: integer
+                  monthlyRevenue:
+                    type: number
+                  purchasePrice:
+                    type: number
+                  status:
+                    type: string
+            source:
+              type: string
+              example: postgresql
+    """
     try:
         properties = db.get_all_properties()
         return jsonify({
@@ -102,6 +182,57 @@ def get_properties():
 
 @app.route('/api/properties', methods=['POST'])
 def add_property():
+    """Create a new property
+    ---
+    tags:
+      - Properties
+    parameters:
+      - in: body
+        name: property
+        description: Property object
+        required: true
+        schema:
+          type: object
+          required:
+            - name
+            - address
+            - type
+            - units
+          properties:
+            name:
+              type: string
+            address:
+              type: string
+            type:
+              type: string
+              enum: [Residential, Commercial, Mixed-Use, Condominium]
+            units:
+              type: integer
+            occupied:
+              type: integer
+            monthlyRevenue:
+              type: number
+            purchasePrice:
+              type: number
+            purchaseDate:
+              type: string
+              format: date
+            status:
+              type: string
+              enum: [Active, Inactive, Under Renovation]
+    responses:
+      200:
+        description: Property created successfully
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: object
+            message:
+              type: string
+    """
     try:
         new_property = request.json
 
@@ -129,6 +260,25 @@ def add_property():
 # ===== TENANTS ENDPOINTS =====
 @app.route('/api/tenants', methods=['GET'])
 def get_tenants():
+    """Get all tenants from PostgreSQL database
+    ---
+    tags:
+      - Tenants
+    responses:
+      200:
+        description: List of all tenants
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+              items:
+                type: object
+            source:
+              type: string
+    """
     try:
         tenants = db.get_all_tenants()
         return jsonify({
@@ -142,6 +292,52 @@ def get_tenants():
 
 @app.route('/api/tenants', methods=['POST'])
 def add_tenant():
+    """Create a new tenant
+    ---
+    tags:
+      - Tenants
+    parameters:
+      - in: body
+        name: tenant
+        description: Tenant object
+        required: true
+        schema:
+          type: object
+          required:
+            - name
+            - email
+            - property
+            - propertyId
+            - unit
+            - rent
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+            phone:
+              type: string
+            property:
+              type: string
+            propertyId:
+              type: integer
+            unit:
+              type: string
+            rent:
+              type: number
+            leaseStart:
+              type: string
+              format: date
+            leaseEnd:
+              type: string
+              format: date
+            status:
+              type: string
+              enum: [Current, Past, Pending]
+    responses:
+      200:
+        description: Tenant created successfully
+    """
     try:
         new_tenant = request.json
 
@@ -169,6 +365,23 @@ def add_tenant():
 # ===== WORK ORDERS ENDPOINTS =====
 @app.route('/api/workorders', methods=['GET'])
 def get_workorders():
+    """Get all work orders from PostgreSQL database
+    ---
+    tags:
+      - Work Orders
+    responses:
+      200:
+        description: List of all work orders
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+            source:
+              type: string
+    """
     try:
         work_orders = db.get_all_work_orders()
         return jsonify({
@@ -182,6 +395,21 @@ def get_workorders():
 
 @app.route('/api/workorders', methods=['POST'])
 def add_workorder():
+    """Create a new work order
+    ---
+    tags:
+      - Work Orders
+    parameters:
+      - in: body
+        name: workorder
+        description: Work order object
+        required: true
+        schema:
+          type: object
+    responses:
+      200:
+        description: Work order created successfully
+    """
     try:
         new_workorder = request.json
 
@@ -374,9 +602,9 @@ def sync_localstorage():
 def analytics_dashboard():
     """Main dashboard analytics using Pandas"""
     try:
-        data = read_data()
-        properties = data.get('properties', [])
-        tenants = data.get('tenants', [])
+        # Get data from PostgreSQL
+        properties = db.get_all_properties()
+        tenants = db.get_all_tenants()
 
         if not properties:
             return jsonify({
@@ -392,7 +620,8 @@ def analytics_dashboard():
                     'occupancy_rate': 0,
                     'avg_property_value': 0,
                     'avg_revenue_per_property': 0
-                }
+                },
+                'source': 'postgresql'
             })
 
         # Create DataFrame from properties
@@ -431,7 +660,8 @@ def analytics_dashboard():
                 'occupancy_rate': float(occupancy_rate),
                 'avg_property_value': float(avg_property_value),
                 'avg_revenue_per_property': float(avg_revenue_per_property)
-            }
+            },
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in analytics_dashboard: {e}")
@@ -441,11 +671,11 @@ def analytics_dashboard():
 def analytics_property_types():
     """Analytics grouped by property type"""
     try:
-        data = read_data()
-        properties = data.get('properties', [])
+        # Get data from PostgreSQL
+        properties = db.get_all_properties()
 
         if not properties:
-            return jsonify({'success': True, 'data': {}})
+            return jsonify({'success': True, 'data': {}, 'source': 'postgresql'})
 
         df = pd.DataFrame(properties)
 
@@ -476,7 +706,7 @@ def analytics_property_types():
                 'occupied_units': int(row['occupied'])
             }
 
-        return jsonify({'success': True, 'data': result})
+        return jsonify({'success': True, 'data': result, 'source': 'postgresql'})
     except Exception as e:
         print(f"Error in analytics_property_types: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -485,11 +715,11 @@ def analytics_property_types():
 def analytics_rankings():
     """Top performing properties"""
     try:
-        data = read_data()
-        properties = data.get('properties', [])
+        # Get data from PostgreSQL
+        properties = db.get_all_properties()
 
         if not properties:
-            return jsonify({'success': True, 'data': {'top_by_value': [], 'top_by_revenue': []}})
+            return jsonify({'success': True, 'data': {'top_by_value': [], 'top_by_revenue': []}, 'source': 'postgresql'})
 
         df = pd.DataFrame(properties)
 
@@ -507,7 +737,8 @@ def analytics_rankings():
             'data': {
                 'top_by_value': top_by_value,
                 'top_by_revenue': top_by_revenue
-            }
+            },
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in analytics_rankings: {e}")
@@ -517,12 +748,12 @@ def analytics_rankings():
 def analytics_portfolio():
     """Portfolio-wide analytics"""
     try:
-        data = read_data()
-        properties = data.get('properties', [])
-        tenants = data.get('tenants', [])
+        # Get data from PostgreSQL
+        properties = db.get_all_properties()
+        tenants = db.get_all_tenants()
 
         if not properties:
-            return jsonify({'success': True, 'data': {}})
+            return jsonify({'success': True, 'data': {}, 'source': 'postgresql'})
 
         df = pd.DataFrame(properties)
 
@@ -535,7 +766,7 @@ def analytics_portfolio():
             'avg_units_per_property': float(df['units'].mean())
         }
 
-        return jsonify({'success': True, 'data': portfolio_data})
+        return jsonify({'success': True, 'data': portfolio_data, 'source': 'postgresql'})
     except Exception as e:
         print(f"Error in analytics_portfolio: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -544,11 +775,11 @@ def analytics_portfolio():
 def analytics_correlations():
     """Correlation analysis between metrics"""
     try:
-        data = read_data()
-        properties = data.get('properties', [])
+        # Get data from PostgreSQL
+        properties = db.get_all_properties()
 
         if not properties or len(properties) < 2:
-            return jsonify({'success': True, 'data': {}})
+            return jsonify({'success': True, 'data': {}, 'source': 'postgresql'})
 
         df = pd.DataFrame(properties)
 
@@ -559,7 +790,7 @@ def analytics_correlations():
         # Replace NaN with null (valid JSON) and convert to dict
         correlation_matrix = correlation_matrix.replace({np.nan: None}).to_dict()
 
-        return jsonify({'success': True, 'data': correlation_matrix})
+        return jsonify({'success': True, 'data': correlation_matrix, 'source': 'postgresql'})
     except Exception as e:
         print(f"Error in analytics_correlations: {e}")
         return jsonify({'success': False, 'error': str(e)}), 500
@@ -567,37 +798,65 @@ def analytics_correlations():
 # ===== APPLICATIONS ENDPOINTS =====
 @app.route('/api/applications', methods=['GET'])
 def get_applications():
-    """Get all tenant applications with optional filters"""
+    """Get all tenant applications with optional filters
+    ---
+    tags:
+      - Applications
+    parameters:
+      - in: query
+        name: status
+        type: string
+        enum: [screening, approved, rejected, withdrawn]
+      - in: query
+        name: propertyId
+        type: string
+      - in: query
+        name: search
+        type: string
+    responses:
+      200:
+        description: List of all applications
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+            count:
+              type: integer
+            source:
+              type: string
+    """
     try:
-        data = read_data()
-        applications = data.get('applications', [])
+        applications = db.get_all_applications()
 
-        # Optional filters
+        # Optional filters (apply in Python for now, can optimize with SQL later)
         status = request.args.get('status')
         property_id = request.args.get('propertyId')
         search = request.args.get('search')
 
-        # Apply filters
         if status:
             applications = [a for a in applications if a.get('status') == status]
 
         if property_id:
-            applications = [a for a in applications if a.get('propertyId') == property_id]
+            applications = [a for a in applications if str(a.get('propertyId')) == property_id]
 
         if search:
             search_lower = search.lower()
             applications = [
                 a for a in applications
-                if search_lower in a.get('firstName', '').lower()
-                or search_lower in a.get('lastName', '').lower()
-                or search_lower in a.get('email', '').lower()
-                or search_lower in a.get('propertyName', '').lower()
+                if search_lower in str(a.get('firstName', '')).lower()
+                or search_lower in str(a.get('lastName', '')).lower()
+                or search_lower in str(a.get('email', '')).lower()
+                or search_lower in str(a.get('propertyName', '')).lower()
             ]
 
         return jsonify({
             'success': True,
             'data': applications,
-            'count': len(applications)
+            'count': len(applications),
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in get_applications: {e}")
@@ -607,17 +866,15 @@ def get_applications():
 def get_application(application_id):
     """Get specific application by ID"""
     try:
-        data = read_data()
-        applications = data.get('applications', [])
-
-        application = next((a for a in applications if a.get('id') == application_id), None)
+        application = db.get_application_by_id(application_id)
 
         if not application:
             return jsonify({'success': False, 'error': 'Application not found'}), 404
 
         return jsonify({
             'success': True,
-            'data': application
+            'data': application,
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in get_application: {e}")
@@ -627,7 +884,6 @@ def get_application(application_id):
 def create_application():
     """Submit new tenant application"""
     try:
-        data = read_data()
         new_application = request.json
 
         # Generate ID if not present
@@ -636,33 +892,34 @@ def create_application():
 
         # Set timestamps and defaults
         if 'status' not in new_application:
-            new_application['status'] = 'submitted'
+            new_application['status'] = 'screening'
 
         if 'submittedDate' not in new_application:
             new_application['submittedDate'] = datetime.now().isoformat()
 
-        new_application['createdAt'] = datetime.now().isoformat()
-        new_application['updatedAt'] = datetime.now().isoformat()
-
         # Initialize empty arrays if not present
-        if 'documents' not in new_application:
-            new_application['documents'] = []
+        for field in ['documents', 'additionalIncome', 'previousAddresses', 'personalReferences', 'occupants', 'pets', 'vehicles']:
+            if field not in new_application:
+                new_application[field] = []
 
-        # Ensure applications array exists
-        if 'applications' not in data:
-            data['applications'] = []
+        # Initialize empty objects
+        for field in ['currentAddress', 'emergencyContact']:
+            if field not in new_application:
+                new_application[field] = {}
 
-        data['applications'].append(new_application)
+        # Create application in PostgreSQL
+        application_id = db.create_application(new_application)
 
-        if write_data(data):
-            # TODO: Send confirmation email here
-            return jsonify({
-                'success': True,
-                'data': new_application,
-                'message': 'Application submitted successfully'
-            }), 201
-        else:
-            return jsonify({'success': False, 'error': 'Failed to save application'}), 500
+        # Fetch the created application
+        created_application = db.get_application_by_id(application_id)
+
+        # TODO: Send confirmation email here
+        return jsonify({
+            'success': True,
+            'data': created_application,
+            'message': 'Application submitted successfully',
+            'source': 'postgresql'
+        }), 201
 
     except Exception as e:
         print(f"Error in create_application: {e}")
@@ -672,32 +929,28 @@ def create_application():
 def update_application(application_id):
     """Update application (status, review, etc.)"""
     try:
-        data = read_data()
-        applications = data.get('applications', [])
-
-        # Find application index
-        app_index = next((i for i, a in enumerate(applications) if a.get('id') == application_id), None)
-
-        if app_index is None:
+        # Check if application exists
+        existing = db.get_application_by_id(application_id)
+        if not existing:
             return jsonify({'success': False, 'error': 'Application not found'}), 404
 
         # Update application
         update_data = request.json
-        applications[app_index].update(update_data)
-        applications[app_index]['updatedAt'] = datetime.now().isoformat()
 
         # If status changed to approved/rejected, set review date
         if 'status' in update_data and update_data['status'] in ['approved', 'rejected']:
-            if 'reviewedDate' not in applications[app_index]:
-                applications[app_index]['reviewedDate'] = datetime.now().isoformat()
+            if 'reviewedDate' not in update_data:
+                update_data['reviewedDate'] = datetime.now().isoformat()
 
-        data['applications'] = applications
+        success = db.update_application(application_id, update_data)
 
-        if write_data(data):
+        if success:
+            updated_application = db.get_application_by_id(application_id)
             return jsonify({
                 'success': True,
-                'data': applications[app_index],
-                'message': 'Application updated successfully'
+                'data': updated_application,
+                'message': 'Application updated successfully',
+                'source': 'postgresql'
             })
         else:
             return jsonify({'success': False, 'error': 'Failed to update application'}), 500
@@ -710,25 +963,16 @@ def update_application(application_id):
 def delete_application(application_id):
     """Delete application"""
     try:
-        data = read_data()
-        applications = data.get('applications', [])
+        success = db.delete_application(application_id)
 
-        # Find and remove application
-        initial_count = len(applications)
-        applications = [a for a in applications if a.get('id') != application_id]
-
-        if len(applications) == initial_count:
-            return jsonify({'success': False, 'error': 'Application not found'}), 404
-
-        data['applications'] = applications
-
-        if write_data(data):
+        if success:
             return jsonify({
                 'success': True,
-                'message': 'Application deleted successfully'
+                'message': 'Application deleted successfully',
+                'source': 'postgresql'
             })
         else:
-            return jsonify({'success': False, 'error': 'Failed to delete application'}), 500
+            return jsonify({'success': False, 'error': 'Application not found'}), 404
 
     except Exception as e:
         print(f"Error in delete_application: {e}")
@@ -738,16 +982,11 @@ def delete_application(application_id):
 def convert_application_to_tenant(application_id):
     """Convert approved application to active tenant"""
     try:
-        data = read_data()
-        applications = data.get('applications', [])
-
         # Find application
-        app_index = next((i for i, a in enumerate(applications) if a.get('id') == application_id), None)
+        application = db.get_application_by_id(application_id)
 
-        if app_index is None:
+        if not application:
             return jsonify({'success': False, 'error': 'Application not found'}), 404
-
-        application = applications[app_index]
 
         # Check if application is approved
         if application.get('status') != 'approved':
@@ -761,7 +1000,8 @@ def convert_application_to_tenant(application_id):
             'phone': application.get('phone'),
             'property': application.get('propertyName'),
             'unit': application.get('desiredUnit', ''),
-            'rent': application.get('monthlyIncome', 0) / 3,  # Estimate based on income
+            'rent': application.get('monthlyIncome', 0) / 3 if application.get('monthlyIncome') else 1000,
+            'leaseStart': application.get('desiredMoveInDate'),
             'leaseEnd': application.get('desiredMoveInDate'),  # TODO: Calculate based on lease term
             'status': 'Current',
             'balance': 0,
@@ -770,24 +1010,21 @@ def convert_application_to_tenant(application_id):
             'updated_at': datetime.now().isoformat()
         }
 
-        # Add tenant to data
-        if 'tenants' not in data:
-            data['tenants'] = []
-        data['tenants'].append(new_tenant)
+        # Create tenant in PostgreSQL
+        tenant_id = db.create_tenant(new_tenant)
 
         # Update application with tenant ID
-        applications[app_index]['tenantId'] = new_tenant['id']
-        applications[app_index]['updatedAt'] = datetime.now().isoformat()
-        data['applications'] = applications
+        db.update_application(application_id, {'tenantId': tenant_id})
 
-        if write_data(data):
-            return jsonify({
-                'success': True,
-                'data': new_tenant,
-                'message': 'Application converted to tenant successfully'
-            }), 201
-        else:
-            return jsonify({'success': False, 'error': 'Failed to convert application'}), 500
+        # Fetch the created tenant
+        created_tenant = db.get_tenant_by_email(new_tenant['email'])
+
+        return jsonify({
+            'success': True,
+            'data': created_tenant,
+            'message': 'Application converted to tenant successfully',
+            'source': 'postgresql'
+        }), 201
 
     except Exception as e:
         print(f"Error in convert_application_to_tenant: {e}")
@@ -797,35 +1034,12 @@ def convert_application_to_tenant(application_id):
 def get_application_stats():
     """Get application statistics"""
     try:
-        data = read_data()
-        applications = data.get('applications', [])
-
-        if not applications:
-            return jsonify({
-                'success': True,
-                'data': {
-                    'total': 0,
-                    'submitted': 0,
-                    'screening': 0,
-                    'approved': 0,
-                    'rejected': 0,
-                    'withdrawn': 0
-                }
-            })
-
-        # Count by status
-        stats = {
-            'total': len(applications),
-            'submitted': len([a for a in applications if a.get('status') == 'submitted']),
-            'screening': len([a for a in applications if a.get('status') == 'screening']),
-            'approved': len([a for a in applications if a.get('status') == 'approved']),
-            'rejected': len([a for a in applications if a.get('status') == 'rejected']),
-            'withdrawn': len([a for a in applications if a.get('status') == 'withdrawn'])
-        }
+        stats = db.get_application_stats()
 
         return jsonify({
             'success': True,
-            'data': stats
+            'data': stats,
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in get_application_stats: {e}")
@@ -839,14 +1053,10 @@ def tenant_login():
     try:
         credentials = request.json
         email = credentials.get('email')
-        password = credentials.get('password')
+        # password = credentials.get('password')  # TODO: Implement password verification
 
-        # For now, do simple validation (in production, verify against database with hashed passwords)
-        data = read_data()
-        tenants = data.get('tenants', [])
-
-        # Find tenant by email
-        tenant = next((t for t in tenants if t.get('email') == email), None)
+        # Find tenant by email in PostgreSQL
+        tenant = db.get_tenant_by_email(email)
 
         if tenant:
             # In production, verify password hash here
@@ -860,21 +1070,15 @@ def tenant_login():
                     'email': tenant.get('email'),
                     'unit': tenant.get('unit'),
                     'property': tenant.get('property')
-                }
+                },
+                'source': 'postgresql'
             })
         else:
-            # For development: Allow any login (mock mode)
+            # No mock mode - return authentication failure
             return jsonify({
-                'success': True,
-                'token': 'mock-token-123',
-                'tenant': {
-                    'id': 1,
-                    'name': 'Mock Tenant',
-                    'email': email,
-                    'unit': 'A101',
-                    'property': 'Sunset Apartments'
-                }
-            })
+                'success': False,
+                'error': 'Invalid email or password'
+            }), 401
 
     except Exception as e:
         print(f"Error in tenant_login: {e}")
@@ -975,23 +1179,35 @@ def serve_upload(subpath, filename):
 
 @app.route('/api/messages', methods=['GET'])
 def get_messages():
-    """Get all messages for AdminEstate Communication Center"""
+    """Get all messages for AdminEstate Communication Center
+    ---
+    tags:
+      - Messages
+    responses:
+      200:
+        description: List of all messages
+        schema:
+          type: object
+          properties:
+            success:
+              type: boolean
+            data:
+              type: array
+            count:
+              type: integer
+            source:
+              type: string
+    """
     try:
-        data = read_data()
-        messages = data.get('messages', [])
-
         # Optional filter by tenant email
         tenant_email = request.args.get('tenantEmail')
-        if tenant_email:
-            messages = [m for m in messages if m.get('fromEmail') == tenant_email or m.get('toEmail') == tenant_email]
-
-        # Sort by date/time, newest first
-        sorted_messages = sorted(messages, key=lambda m: m.get('submittedAt', m.get('date', '')), reverse=True)
+        messages = db.get_all_messages(tenant_email=tenant_email)
 
         return jsonify({
             'success': True,
-            'data': sorted_messages,
-            'count': len(sorted_messages)
+            'data': messages,
+            'count': len(messages),
+            'source': 'postgresql'
         })
     except Exception as e:
         print(f"Error in get_messages: {e}")
@@ -1001,7 +1217,6 @@ def get_messages():
 def send_message():
     """Send a general message (manager to tenant or tenant to manager)"""
     try:
-        data = read_data()
         message_data = request.json
 
         # Create new message
@@ -1020,24 +1235,19 @@ def send_message():
             'time': datetime.now().strftime('%I:%M %p'),
             'read': False,
             'type': 'general_message',
-            'replyTo': message_data.get('replyTo'),  # Optional: ID of message being replied to
+            'replyTo': message_data.get('replyTo'),
             'sentAt': datetime.now().isoformat()
         }
 
-        # Ensure messages array exists
-        if 'messages' not in data:
-            data['messages'] = []
+        # Create message in PostgreSQL
+        created_id = db.create_message(new_message)
 
-        data['messages'].append(new_message)
-
-        if write_data(data):
-            return jsonify({
-                'success': True,
-                'data': new_message,
-                'message': 'Message sent successfully'
-            }), 201
-        else:
-            return jsonify({'success': False, 'error': 'Failed to send message'}), 500
+        return jsonify({
+            'success': True,
+            'data': new_message,
+            'message': 'Message sent successfully',
+            'source': 'postgresql'
+        }), 201
 
     except Exception as e:
         print(f"Error in send_message: {e}")
@@ -1047,24 +1257,16 @@ def send_message():
 def mark_message_read(message_id):
     """Mark a message as read"""
     try:
-        data = read_data()
-        messages = data.get('messages', [])
+        success = db.mark_message_as_read(message_id)
 
-        # Find and update message
-        message = next((m for m in messages if m.get('id') == message_id), None)
-
-        if not message:
-            return jsonify({'success': False, 'error': 'Message not found'}), 404
-
-        message['read'] = True
-
-        if write_data(data):
+        if success:
             return jsonify({
                 'success': True,
-                'data': message
+                'message': 'Message marked as read',
+                'source': 'postgresql'
             })
         else:
-            return jsonify({'success': False, 'error': 'Failed to update message'}), 500
+            return jsonify({'success': False, 'error': 'Message not found'}), 404
 
     except Exception as e:
         print(f"Error in mark_message_read: {e}")
@@ -1074,7 +1276,6 @@ def mark_message_read(message_id):
 def tenant_submit_maintenance():
     """Tenant submits a maintenance request - creates message with metadata for approval"""
     try:
-        data = read_data()
         maintenance_request = request.json
 
         # Create a message with maintenance request metadata
@@ -1090,8 +1291,8 @@ def tenant_submit_maintenance():
             'date': datetime.now().strftime('%Y-%m-%d'),
             'time': datetime.now().strftime('%I:%M %p'),
             'read': False,
-            'type': 'maintenance_request',  # Special type for maintenance requests
-            'status': 'pending_approval',  # Pending manager approval
+            'type': 'maintenance_request',
+            'status': 'pending_approval',
             'maintenanceData': {
                 'title': maintenance_request.get('title', 'Maintenance Issue'),
                 'category': maintenance_request.get('category', 'other'),
@@ -1101,24 +1302,19 @@ def tenant_submit_maintenance():
                 'preferredTime': maintenance_request.get('preferredTime', ''),
                 'photos': maintenance_request.get('photos', [])
             },
-            'workOrderId': None,  # Will be set when approved
+            'workOrderId': None,
             'submittedAt': datetime.now().isoformat()
         }
 
-        # Ensure messages array exists
-        if 'messages' not in data:
-            data['messages'] = []
+        # Create message in PostgreSQL
+        db.create_message(new_message)
 
-        data['messages'].append(new_message)
-
-        if write_data(data):
-            return jsonify({
-                'success': True,
-                'data': new_message,
-                'message': 'Maintenance request submitted and sent to property manager for review'
-            }), 201
-        else:
-            return jsonify({'success': False, 'error': 'Failed to save maintenance request'}), 500
+        return jsonify({
+            'success': True,
+            'data': new_message,
+            'message': 'Maintenance request submitted and sent to property manager for review',
+            'source': 'postgresql'
+        }), 201
 
     except Exception as e:
         print(f"Error in tenant_submit_maintenance: {e}")
@@ -1128,10 +1324,8 @@ def tenant_submit_maintenance():
 def approve_maintenance_request(message_id):
     """Approve a maintenance request message and convert it to a work order"""
     try:
-        data = read_data()
-        messages = data.get('messages', [])
-
-        # Find the maintenance request message
+        # Find the maintenance request message from PostgreSQL
+        messages = db.get_all_messages()
         message = next((msg for msg in messages if msg.get('id') == message_id and msg.get('type') == 'maintenance_request'), None)
 
         if not message:
@@ -1160,25 +1354,16 @@ def approve_maintenance_request(message_id):
             'preferredTime': maintenance_data.get('preferredTime', ''),
             'photos': maintenance_data.get('photos', []),
             'source': 'tenant_portal',
-            'messageId': message_id,  # Link back to original message
+            'messageId': message_id,
             'submittedAt': message.get('submittedAt'),
-            'approvedAt': datetime.now().isoformat(),
-            'updatedAt': datetime.now().isoformat()
+            'approvedAt': datetime.now().isoformat()
         }
 
-        # Ensure workOrders array exists
-        if 'workOrders' not in data:
-            data['workOrders'] = []
-
-        data['workOrders'].append(new_work_order)
+        # Create work order in PostgreSQL
+        db.create_work_order(new_work_order)
 
         # Update the message status and link to work order
-        for msg in messages:
-            if msg.get('id') == message_id:
-                msg['status'] = 'approved'
-                msg['workOrderId'] = work_order_id
-                msg['approvedAt'] = datetime.now().isoformat()
-                break
+        db.update_message_status(message_id, 'approved', work_order_id)
 
         # Create a reply message to notify the tenant
         approval_message = {
@@ -1186,6 +1371,7 @@ def approve_maintenance_request(message_id):
             'from': 'Property Manager',
             'fromEmail': 'manager@adminestate.com',
             'to': message.get('from'),
+            'toEmail': message.get('fromEmail'),
             'property': message.get('property'),
             'unit': message.get('unit'),
             'subject': f"RE: {message.get('subject')}",
@@ -1195,23 +1381,21 @@ def approve_maintenance_request(message_id):
             'read': False,
             'type': 'approval_notification',
             'workOrderId': work_order_id,
-            'replyTo': message_id
+            'replyTo': message_id,
+            'sentAt': datetime.now().isoformat()
         }
 
-        messages.append(approval_message)
-        data['messages'] = messages
+        db.create_message(approval_message)
 
-        if write_data(data):
-            return jsonify({
-                'success': True,
-                'data': {
-                    'workOrder': new_work_order,
-                    'message': approval_message
-                },
-                'message': 'Maintenance request approved and work order created'
-            })
-        else:
-            return jsonify({'success': False, 'error': 'Failed to save data'}), 500
+        return jsonify({
+            'success': True,
+            'data': {
+                'workOrder': new_work_order,
+                'message': approval_message
+            },
+            'message': 'Maintenance request approved and work order created',
+            'source': 'postgresql'
+        })
 
     except Exception as e:
         print(f"Error in approve_maintenance_request: {e}")
@@ -1221,12 +1405,11 @@ def approve_maintenance_request(message_id):
 def tenant_get_maintenance():
     """Get tenant's maintenance requests (both messages and work orders)"""
     try:
-        data = read_data()
-        messages = data.get('messages', [])
-        work_orders = data.get('workOrders', [])
+        # Get all messages and work orders from PostgreSQL
+        messages = db.get_all_messages()
+        work_orders = db.get_all_work_orders()
 
         # Get tenant ID from query params (in production, get from JWT token)
-        tenant_id = request.args.get('tenantId')
         tenant_name = request.args.get('tenantName')
         unit = request.args.get('unit')
 
@@ -1267,7 +1450,8 @@ def tenant_get_maintenance():
         return jsonify({
             'success': True,
             'data': results,
-            'count': len(results)
+            'count': len(results),
+            'source': 'postgresql'
         })
 
     except Exception as e:
@@ -1278,17 +1462,15 @@ def tenant_get_maintenance():
 def tenant_get_maintenance_detail(request_id):
     """Get specific maintenance request details"""
     try:
-        data = read_data()
-        work_orders = data.get('workOrders', [])
-
-        work_order = next((wo for wo in work_orders if wo.get('id') == request_id), None)
+        work_order = db.get_work_order_by_id(request_id)
 
         if not work_order:
             return jsonify({'success': False, 'error': 'Maintenance request not found'}), 404
 
         return jsonify({
             'success': True,
-            'data': work_order
+            'data': work_order,
+            'source': 'postgresql'
         })
 
     except Exception as e:
@@ -1296,9 +1478,9 @@ def tenant_get_maintenance_detail(request_id):
         return jsonify({'success': False, 'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("Starting Simplified Flask Backend")
-    print(f"Reading from: {DATA_FILE}")
-    print("No CSV files, no complex services, just simple JSON!")
-    print("UI <-> localStorage <-> data.json <-> Flask")
-    print("Pandas analytics enabled!")
+    print("Starting AdminEstate Flask Backend with PostgreSQL")
+    print("Database: PostgreSQL (Docker container)")
+    print("Connection pool: 1-10 connections")
+    print("UI <-> Flask API <-> PostgreSQL Database")
+    print("Swagger UI: http://localhost:5000/api-docs/")
     app.run(debug=False, port=5000, host='localhost')
