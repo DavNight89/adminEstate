@@ -80,6 +80,7 @@
     "npmRebuild": false,
     "files": [
       "build/**/*",
+      "tenant-portal-build/**/*",
       "node_modules/**/*",
       "!node_modules/@napi-rs/**/*",
       "public/electron.js",
