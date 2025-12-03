@@ -3,6 +3,7 @@ const path = require('path');
 const url = require('url');
 
 let mainWindow;
+let tenantPortalWindow;
 
 function createWindow() {
   // Determine if running in development
@@ -60,6 +61,66 @@ function createWindow() {
   // Cleanup on close
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+}
+
+function openTenantPortal() {
+  // If tenant portal window already exists, focus it
+  if (tenantPortalWindow) {
+    tenantPortalWindow.focus();
+    return;
+  }
+
+  const isDev = process.env.NODE_ENV !== 'production' && !app.isPackaged;
+
+  // Create tenant portal window
+  tenantPortalWindow = new BrowserWindow({
+    width: 1200,
+    height: 800,
+    minWidth: 1024,
+    minHeight: 768,
+    icon: path.join(__dirname, 'logo512.png'),
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+      enableRemoteModule: false
+    },
+    show: false,
+    backgroundColor: '#f9fafb',
+    title: 'Tenant Portal - AdminEstate'
+  });
+
+  // Load tenant portal
+  const tenantPortalUrl = isDev
+    ? 'http://localhost:3001'
+    : url.format({
+        pathname: path.join(__dirname, '../tenant-portal-build/index.html'),
+        protocol: 'file:',
+        slashes: true
+      });
+
+  tenantPortalWindow.loadURL(tenantPortalUrl);
+
+  // Show window when ready
+  tenantPortalWindow.once('ready-to-show', () => {
+    tenantPortalWindow.show();
+    tenantPortalWindow.focus();
+  });
+
+  // Open DevTools in development mode
+  if (isDev) {
+    tenantPortalWindow.webContents.openDevTools();
+  }
+
+  // Handle external links
+  tenantPortalWindow.webContents.setWindowOpenHandler(({ url }) => {
+    shell.openExternal(url);
+    return { action: 'deny' };
+  });
+
+  // Cleanup on close
+  tenantPortalWindow.on('closed', () => {
+    tenantPortalWindow = null;
   });
 }
 
@@ -156,6 +217,14 @@ function createMenu() {
     {
       label: 'Window',
       submenu: [
+        {
+          label: 'Open Tenant Portal',
+          accelerator: 'CmdOrCtrl+T',
+          click: () => {
+            openTenantPortal();
+          }
+        },
+        { type: 'separator' },
         { role: 'minimize' },
         { role: 'zoom' },
         ...(isMac ? [
