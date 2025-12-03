@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Home,
@@ -15,26 +15,99 @@ import {
   Clock
 } from 'lucide-react';
 
+// OFFLINE-ONLY: No API calls needed
+
 const TenantDashboard = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - will be replaced with API calls
-  const dashboardData = {
+  // Real data from API
+  const [dashboardData, setDashboardData] = useState({
     rentDue: {
-      amount: 1500,
-      dueDate: '2025-12-01',
-      status: 'upcoming' // upcoming, overdue, paid
+      amount: user?.tenant?.rent || 0,
+      dueDate: getNextRentDueDate(),
+      status: 'upcoming'
     },
-    maintenanceRequests: [
-      { id: 1, issue: 'AC not cooling', status: 'in_progress', date: '2025-11-03' },
-      { id: 2, issue: 'Leaky faucet', status: 'completed', date: '2025-10-28' }
-    ],
-    unreadMessages: 3,
-    upcomingInspections: [
-      { id: 1, type: 'Annual Inspection', date: '2025-12-15' }
-    ]
-  };
+    maintenanceRequests: [],
+    unreadMessages: 0,
+    documents: 0,
+    upcomingInspections: []
+  });
+
+  // Calculate next rent due date (1st of next month)
+  function getNextRentDueDate() {
+    const now = new Date();
+    const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    return nextMonth.toISOString().split('T')[0];
+  }
+
+  // Fetch dashboard data from APIs
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!user?.tenant) return;
+
+      try {
+        // Load from localStorage first (offline-first)
+        let maintenanceRequests = [];
+        let unreadMessages = 0;
+        let documents = 0;
+
+        // Load work orders from localStorage
+        const localWorkOrders = localStorage.getItem('workOrders');
+        if (localWorkOrders) {
+          const parsedWorkOrders = JSON.parse(localWorkOrders);
+          const tenantWorkOrders = parsedWorkOrders.filter(wo =>
+            wo.tenantEmail === user.tenant.email || wo.tenant === user.tenant.name
+          );
+          maintenanceRequests = tenantWorkOrders.slice(0, 5).map(req => ({
+            id: req.id,
+            issue: req.title || req.description?.substring(0, 50) || 'Maintenance Request',
+            status: req.status?.toLowerCase().replace(' ', '_') || 'pending',
+            date: req.dateSubmitted || new Date().toISOString().split('T')[0]
+          }));
+        }
+
+        // Load messages from localStorage
+        const localMessages = localStorage.getItem('messages');
+        if (localMessages) {
+          const parsedMessages = JSON.parse(localMessages);
+          unreadMessages = parsedMessages.filter(m =>
+            !m.read && m.toEmail === user.tenant.email && m.fromEmail !== user.tenant.email
+          ).length;
+        }
+
+        // OFFLINE-ONLY: No backend sync, localStorage only
+        // Calculate rent status
+        const today = new Date();
+        const dueDate = new Date(getNextRentDueDate());
+        const daysUntilDue = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+        let rentStatus = 'upcoming';
+        if (daysUntilDue < 0) rentStatus = 'overdue';
+        else if (user.tenant.balance <= 0) rentStatus = 'paid';
+
+        setDashboardData({
+          rentDue: {
+            amount: user.tenant.rent || 0,
+            dueDate: getNextRentDueDate(),
+            status: rentStatus
+          },
+          maintenanceRequests: maintenanceRequests.slice(0, 5), // Show last 5
+          unreadMessages,
+          documents,
+          upcomingInspections: [] // Could add inspections API later
+        });
+
+      } catch (error) {
+        console.error('Error fetching dashboard data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+    // OFFLINE-ONLY: No polling needed, data only in localStorage
+  }, [user]);
 
   const handleLogout = () => {
     onLogout();
@@ -232,7 +305,7 @@ const TenantDashboard = ({ user, onLogout }) => {
               <div className="flex items-center justify-between mb-2">
                 <FileText className="w-8 h-8 text-orange-600" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-1">5</h3>
+              <h3 className="text-2xl font-bold text-gray-900 mb-1">{loading ? '...' : dashboardData.documents}</h3>
               <p className="text-sm text-gray-600">Documents</p>
               <Link
                 to="/documents"
@@ -257,7 +330,16 @@ const TenantDashboard = ({ user, onLogout }) => {
                 </Link>
               </div>
               <div className="p-6 space-y-4">
-                {dashboardData.maintenanceRequests.map((request) => (
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  </div>
+                ) : dashboardData.maintenanceRequests.length === 0 ? (
+                  <div className="text-center py-8 text-gray-500">
+                    <Wrench className="w-12 h-12 mx-auto mb-2 text-gray-300" />
+                    <p>No maintenance requests yet</p>
+                  </div>
+                ) : dashboardData.maintenanceRequests.map((request) => (
                   <div
                     key={request.id}
                     className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg"

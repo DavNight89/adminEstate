@@ -14,24 +14,27 @@ const MaintenanceList = ({ user, onLogout }) => {
   const fetchMaintenanceRequests = async () => {
     try {
       setLoading(true);
+      setError('');
 
-      // Fetch tenant's maintenance requests
-      const response = await fetch(`/api/tenant/maintenance?unit=${user?.tenant?.unit}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('tenantToken')}`
-        }
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setRequests(data.data || []);
-      } else {
-        setError('Failed to load maintenance requests');
+      // Load from localStorage first (offline-first)
+      const localWorkOrders = localStorage.getItem('workOrders');
+      if (localWorkOrders) {
+        const parsedWorkOrders = JSON.parse(localWorkOrders);
+        // Filter by tenant's unit or tenantId
+        const tenantRequests = parsedWorkOrders.filter(wo =>
+          wo.unit === user?.tenant?.unit ||
+          wo.tenantId === user?.tenant?.id ||
+          wo.tenantEmail === user?.tenant?.email
+        );
+        setRequests(tenantRequests);
+        setLoading(false);
       }
+      // OFFLINE-ONLY: No backend sync
+      console.log('✅ Maintenance requests loaded from localStorage');
+
     } catch (err) {
-      console.error('Error fetching maintenance requests:', err);
-      setError('Network error. Please try again.');
+      console.error('Error loading maintenance requests:', err);
+      setError('Failed to load maintenance requests');
     } finally {
       setLoading(false);
     }

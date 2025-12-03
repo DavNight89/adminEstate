@@ -1,37 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Send, Reply, Mail } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { MessageSquare, Send, Reply, Mail, ArrowLeft } from 'lucide-react';
 
 const MessageThread = ({ user, onLogout }) => {
+  const navigate = useNavigate();
   const [messages, setMessages] = useState([]);
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showReplyModal, setShowReplyModal] = useState(false);
   const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
+  // OFFLINE-ONLY: No backend tracking needed
 
   useEffect(() => {
     fetchMessages();
-    // Poll for new messages every 10 seconds
-    const interval = setInterval(fetchMessages, 10000);
-    return () => clearInterval(interval);
+    // OFFLINE-ONLY: No polling needed, data only in localStorage
   }, [user]);
 
   const fetchMessages = async () => {
     if (!user?.tenant?.email) return;
 
     try {
-      const response = await fetch(`http://localhost:5000/api/messages?tenantEmail=${user.tenant.email}`);
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setMessages(data.data || []);
-          if (!selectedMessage && data.data && data.data.length > 0) {
-            setSelectedMessage(data.data[0]);
-          }
+      // OFFLINE-ONLY: Load from localStorage only, no API calls
+      const localMessages = localStorage.getItem('messages');
+      if (localMessages) {
+        const parsedMessages = JSON.parse(localMessages);
+        const tenantMessages = parsedMessages.filter(m =>
+          m.toEmail === user.tenant.email || m.fromEmail === user.tenant.email
+        );
+        setMessages(tenantMessages);
+        if (!selectedMessage && tenantMessages.length > 0) {
+          setSelectedMessage(tenantMessages[0]);
         }
+        console.log(`✅ Messages loaded from localStorage (${tenantMessages.length})`);
+      } else {
+        setMessages([]);
+        console.log('✅ No messages found in localStorage');
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error loading messages:', error);
     } finally {
       setLoading(false);
     }
@@ -39,12 +46,22 @@ const MessageThread = ({ user, onLogout }) => {
 
   const markAsRead = async (messageId) => {
     try {
-      await fetch(`http://localhost:5000/api/messages/${messageId}/read`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      // Update local state
-      setMessages(messages.map(m => m.id === messageId ? { ...m, read: true } : m));
+      // OFFLINE-ONLY: Update localStorage only, no API calls
+      const localMessages = localStorage.getItem('messages');
+      if (localMessages) {
+        const parsedMessages = JSON.parse(localMessages);
+        const updatedMessages = parsedMessages.map(m =>
+          m.id === messageId ? { ...m, read: true } : m
+        );
+        localStorage.setItem('messages', JSON.stringify(updatedMessages));
+
+        // Update local state
+        const tenantMessages = updatedMessages.filter(m =>
+          m.toEmail === user?.tenant?.email || m.fromEmail === user?.tenant?.email
+        );
+        setMessages(tenantMessages);
+        console.log('✅ Message marked as read in localStorage');
+      }
     } catch (error) {
       console.error('Error marking message as read:', error);
     }
@@ -66,35 +83,40 @@ const MessageThread = ({ user, onLogout }) => {
 
     setSending(true);
     try {
-      const response = await fetch('http://localhost:5000/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: user.tenant.name,
-          fromEmail: user.tenant.email,
-          to: 'Property Manager',
-          toEmail: 'manager@adminestate.com',
-          property: user.tenant.property,
-          unit: user.tenant.unit,
-          subject: `RE: ${selectedMessage.subject}`,
-          message: replyText,
-          replyTo: selectedMessage.id
-        })
-      });
+      // OFFLINE-ONLY: Create and save message to localStorage
+      const newMessage = {
+        id: Date.now(),
+        from: user.tenant.name,
+        fromEmail: user.tenant.email,
+        to: 'Property Manager',
+        toEmail: 'manager@adminestate.com',
+        property: user.tenant.property,
+        unit: user.tenant.unit,
+        subject: `RE: ${selectedMessage.subject}`,
+        message: replyText,
+        replyTo: selectedMessage.id,
+        read: false,
+        date: new Date().toLocaleDateString(),
+        time: new Date().toLocaleTimeString(),
+        createdAt: new Date().toISOString()
+      };
 
-      const data = await response.json();
+      // Save to localStorage 
+      const localMessages = localStorage.getItem('messages');
+      const parsedMessages = localMessages ? JSON.parse(localMessages) : [];
+      parsedMessages.push(newMessage);
+      localStorage.setItem('messages', JSON.stringify(parsedMessages));
 
-      if (response.ok && data.success) {
-        setShowReplyModal(false);
-        setReplyText('');
-        await fetchMessages();
-        alert('Reply sent successfully!');
-      } else {
-        alert(`Failed to send reply: ${data.error}`);
-      }
+      console.log('✅ Reply saved to localStorage:', newMessage);
+
+
+      setShowReplyModal(false);
+      setReplyText('');
+      await fetchMessages();
+      alert('Reply sent!');
     } catch (error) {
       console.error('Error sending reply:', error);
-      alert('Network error. Please try again.');
+      alert('Failed to send reply. Please try again.');
     } finally {
       setSending(false);
     }
@@ -120,8 +142,18 @@ const MessageThread = ({ user, onLogout }) => {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
-        <p className="text-gray-600 mt-1">
+        <div className="flex items-center space-x-3 mb-2">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+            title="Back to Dashboard"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+          <h1 className="text-3xl font-bold text-gray-900">Messages</h1>
+        </div>
+        <p className="text-gray-600 mt-1 ml-24">
           Communicate with your property manager
           {unreadCount > 0 && (
             <span className="ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">

@@ -54,13 +54,14 @@ const Modal = ({showModal,
              modalType === 'editWorkOrder' ? 'Update Work Order' :
              modalType === 'viewWorkOrder' ? 'Work Order Details' :
              modalType === 'updateProperty' ? 'Update Property' :
+             modalType === 'deleteProperty' ? 'Delete Property' :
              modalType === 'addTransaction' ? 'Record Transaction' :
              modalType === 'editTransaction' ? 'Update Transaction' :
              modalType === 'viewProperty' ? selectedItem?.name || 'Property Details' :
              modalType === 'viewPropertiesOverview' ? 'Properties Portfolio Overview' :
              modalType === 'viewTenant' ? 'Tenant Details' :
              modalType === 'viewOccupancyRate' ? 'Occupancy Rate Analysis' :
-             modalType === 'viewTotalUnits' ? 'Total Units Overview' : 
+             modalType === 'viewTotalUnits' ? 'Total Units Overview' :
              'Modal'}
           </h3>
           <button
@@ -2027,6 +2028,58 @@ const Modal = ({showModal,
         className="flex-1 bg-gray-100 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-200 flex items-center justify-center transition-colors"
       >
         Close
+      </button>
+    </div>
+  </div>
+)}
+
+{/* DELETE PROPERTY CONFIRMATION */}
+{modalType === 'deleteProperty' && selectedItem && (
+  <div className="p-6">
+    <div className="text-center mb-6">
+      <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <Building className="w-8 h-8 text-red-600" />
+      </div>
+      <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Property</h3>
+      <p className="text-gray-600">
+        Are you sure you want to delete <strong>{selectedItem.name}</strong>?
+      </p>
+      <p className="text-sm text-red-600 mt-2">
+        This action cannot be undone. All associated data will be permanently removed.
+      </p>
+    </div>
+
+    <div className="bg-gray-50 p-4 rounded-lg mb-6">
+      <div className="space-y-2 text-sm">
+        <div className="flex justify-between">
+          <span className="text-gray-600">Address:</span>
+          <span className="font-medium">{selectedItem.address}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Total Units:</span>
+          <span className="font-medium">{selectedItem.units || 0}</span>
+        </div>
+        <div className="flex justify-between">
+          <span className="text-gray-600">Occupied Units:</span>
+          <span className="font-medium">{selectedItem.occupied || 0}</span>
+        </div>
+      </div>
+    </div>
+
+    <div className="flex space-x-3">
+      <button
+        onClick={closeModal}
+        className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={(e) => {
+          handleSubmit(e);
+        }}
+        className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+      >
+        Delete Property
       </button>
     </div>
   </div>

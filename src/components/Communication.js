@@ -21,6 +21,7 @@ export const Communication = () => {
   const [replyText, setReplyText] = useState('');
   const [sending, setSending] = useState(false);
   const [tenants, setTenants] = useState([]);
+  // OFFLINE-ONLY: No backend tracking needed
   const selectedMessageIdRef = React.useRef(null);
 
   // Keep ref in sync with state
@@ -28,54 +29,58 @@ export const Communication = () => {
     selectedMessageIdRef.current = selectedMessage?.id || null;
   }, [selectedMessage]);
 
+  // OFFLINE-ONLY: Load messages from localStorage only
   const fetchMessages = React.useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/messages');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          const newMessages = data.data || [];
-          setMessages(newMessages);
+      const localMessages = localStorage.getItem('messages');
+      if (localMessages) {
+        const parsedMessages = JSON.parse(localMessages);
+        setMessages(parsedMessages);
 
-          // If a message is currently selected, update it with fresh data
-          const currentSelectedId = selectedMessageIdRef.current;
-          if (currentSelectedId) {
-            const updatedSelectedMessage = newMessages.find(m => m.id === currentSelectedId);
-            if (updatedSelectedMessage) {
-              setSelectedMessage(updatedSelectedMessage);
-            }
-          } else if (newMessages.length > 0) {
-            // If no message is selected, select the first one
-            setSelectedMessage(newMessages[0]);
+        // If a message is currently selected, update it with fresh data
+        const currentSelectedId = selectedMessageIdRef.current;
+        if (currentSelectedId) {
+          const updatedSelectedMessage = parsedMessages.find(m => m.id === currentSelectedId);
+          if (updatedSelectedMessage) {
+            setSelectedMessage(updatedSelectedMessage);
           }
+        } else if (parsedMessages.length > 0) {
+          // If no message is selected, select the first one
+          setSelectedMessage(parsedMessages[0]);
         }
+        console.log(`✅ Messages loaded from localStorage (${parsedMessages.length})`);
+      } else {
+        // No messages in localStorage
+        setMessages([]);
+        console.log('✅ Messages initialized from fallback data');
       }
     } catch (error) {
-      console.error('Error fetching messages:', error);
+      console.error('Error loading messages:', error);
     } finally {
       setLoading(false);
     }
   }, []);
 
+  // OFFLINE-ONLY: No polling intervals
   useEffect(() => {
     fetchMessages();
     fetchTenants();
-    // Poll for new messages every 5 seconds
-    const interval = setInterval(fetchMessages, 5000);
-    return () => clearInterval(interval);
   }, [fetchMessages]);
 
+  // OFFLINE-ONLY: Load tenants from localStorage only
   const fetchTenants = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/tenants');
-      if (response.ok) {
-        const data = await response.json();
-        if (data.success) {
-          setTenants(data.data || []);
-        }
+      const localTenants = localStorage.getItem('tenants');
+      if (localTenants) {
+        const parsedTenants = JSON.parse(localTenants);
+        setTenants(parsedTenants);
+        console.log(`✅ Tenants loaded from localStorage (${parsedTenants.length})`);
+      } else {
+        setTenants([]);
+        console.log('✅ Tenants initialized from fallback data');
       }
     } catch (error) {
-      console.error('Error fetching tenants:', error);
+      console.error('Error loading tenants:', error);
     }
   };
 
@@ -86,32 +91,44 @@ export const Communication = () => {
 
     setApproving(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/maintenance/approve/${messageId}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      // OFFLINE-ONLY: Create work order in localStorage
+      const message = messages.find(m => m.id === messageId);
+      if (!message) return;
 
-      const data = await response.json();
+      // Create work order
+      const workOrderId = Date.now();
+      const workOrder = {
+        id: workOrderId,
+        title: message.subject,
+        description: message.message,
+        status: 'Open',
+        priority: message.maintenanceData?.priority || 'normal',
+        category: message.maintenanceData?.category || 'General',
+        property: message.property,
+        unit: message.unit,
+        tenant: message.from,
+        tenantEmail: message.fromEmail,
+        dateSubmitted: new Date().toISOString().split('T')[0]
+      };
 
-      if (response.ok && data.success) {
-        alert(`✓ Maintenance request approved! Work Order #${data.data.workOrder.id} created.`);
-        // Refresh messages
-        await fetchMessages();
-        // Update selected message
-        const updatedMessage = messages.find(m => m.id === messageId);
-        if (updatedMessage) {
-          updatedMessage.status = 'approved';
-          updatedMessage.workOrderId = data.data.workOrder.id;
-          setSelectedMessage(updatedMessage);
-        }
-      } else {
-        alert(`Failed to approve request: ${data.error}`);
-      }
+      // Save work order to localStorage
+      const localWorkOrders = localStorage.getItem('workOrders');
+      const workOrders = localWorkOrders ? JSON.parse(localWorkOrders) : [];
+      workOrders.push(workOrder);
+      localStorage.setItem('workOrders', JSON.stringify(workOrders));
+
+      // Update message status
+      const updatedMessages = messages.map(m =>
+        m.id === messageId ? { ...m, status: 'approved', workOrderId } : m
+      );
+      localStorage.setItem('messages', JSON.stringify(updatedMessages));
+      setMessages(updatedMessages);
+      setSelectedMessage({ ...message, status: 'approved', workOrderId });
+
+      alert(`✓ Maintenance request approved! Work Order #${workOrderId} created.`);
     } catch (error) {
       console.error('Error approving maintenance request:', error);
-      alert('Network error. Please try again.');
+      alert('Error approving request. Please try again.');
     } finally {
       setApproving(false);
     }
@@ -161,37 +178,40 @@ export const Communication = () => {
       const selectedTenant = tenants.find(t => t.email === newMessage.tenantEmail);
       if (!selectedTenant) {
         alert('Tenant not found');
+        setSending(false);
         return;
       }
 
-      const response = await fetch('http://localhost:5000/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Property Manager',
-          fromEmail: 'manager@adminestate.com',
-          to: selectedTenant.name,
-          toEmail: selectedTenant.email,
-          property: selectedTenant.property,
-          unit: selectedTenant.unit,
-          subject: newMessage.subject,
-          message: newMessage.message
-        })
-      });
+      // OFFLINE-ONLY: Save message to localStorage
+      const newMessageData = {
+        id: Date.now(),
+        from: 'Property Manager',
+        fromEmail: 'manager@adminestate.com',
+        to: selectedTenant.name,
+        toEmail: selectedTenant.email,
+        property: selectedTenant.property,
+        unit: selectedTenant.unit,
+        subject: newMessage.subject,
+        message: newMessage.message,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        submittedAt: new Date().toISOString(),
+        read: false,
+        type: 'general'
+      };
 
-      const data = await response.json();
+      const localMessages = localStorage.getItem('messages');
+      const messagesArray = localMessages ? JSON.parse(localMessages) : [];
+      messagesArray.unshift(newMessageData);
+      localStorage.setItem('messages', JSON.stringify(messagesArray));
 
-      if (response.ok && data.success) {
-        setShowNewMessageModal(false);
-        setNewMessage({ tenantEmail: '', subject: '', message: '' });
-        await fetchMessages();
-        alert('Message sent successfully!');
-      } else {
-        alert(`Failed to send message: ${data.error}`);
-      }
+      setMessages(messagesArray);
+      setShowNewMessageModal(false);
+      setNewMessage({ tenantEmail: '', subject: '', message: '' });
+      alert('Message sent successfully!');
     } catch (error) {
       console.error('Error sending message:', error);
-      alert('Network error. Please try again.');
+      alert('Error sending message. Please try again.');
     } finally {
       setSending(false);
     }
@@ -202,47 +222,47 @@ export const Communication = () => {
 
     setSending(true);
     try {
-      const response = await fetch('http://localhost:5000/api/messages/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          from: 'Property Manager',
-          fromEmail: 'manager@adminestate.com',
-          to: selectedMessage.from,
-          toEmail: selectedMessage.fromEmail,
-          property: selectedMessage.property,
-          unit: selectedMessage.unit,
-          subject: `RE: ${selectedMessage.subject}`,
-          message: replyText,
-          replyTo: selectedMessage.id
-        })
-      });
+      // OFFLINE-ONLY: Save reply to localStorage
+      const replyMessage = {
+        id: Date.now(),
+        from: 'Property Manager',
+        fromEmail: 'manager@adminestate.com',
+        to: selectedMessage.from,
+        toEmail: selectedMessage.fromEmail,
+        property: selectedMessage.property,
+        unit: selectedMessage.unit,
+        subject: `RE: ${selectedMessage.subject}`,
+        message: replyText,
+        replyTo: selectedMessage.id,
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        submittedAt: new Date().toISOString(),
+        read: false,
+        type: 'reply'
+      };
 
-      const data = await response.json();
+      const localMessages = localStorage.getItem('messages');
+      const messagesArray = localMessages ? JSON.parse(localMessages) : [];
+      messagesArray.unshift(replyMessage);
+      localStorage.setItem('messages', JSON.stringify(messagesArray));
 
-      if (response.ok && data.success) {
-        setReplyText('');
-        await fetchMessages();
-        alert('Reply sent successfully!');
-      } else {
-        alert(`Failed to send reply: ${data.error}`);
-      }
+      setMessages(messagesArray);
+      setReplyText('');
+      alert('Reply sent successfully!');
     } catch (error) {
       console.error('Error sending reply:', error);
-      alert('Network error. Please try again.');
+      alert('Error sending reply. Please try again.');
     } finally {
       setSending(false);
     }
   };
 
-  const markAsRead = async (messageId) => {
+  const markAsRead = (messageId) => {
+    // OFFLINE-ONLY: Update read status in localStorage
     try {
-      await fetch(`http://localhost:5000/api/messages/${messageId}/read`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      // Update local state
-      setMessages(messages.map(m => m.id === messageId ? { ...m, read: true } : m));
+      const updatedMessages = messages.map(m => m.id === messageId ? { ...m, read: true } : m);
+      localStorage.setItem('messages', JSON.stringify(updatedMessages));
+      setMessages(updatedMessages);
     } catch (error) {
       console.error('Error marking message as read:', error);
     }
