@@ -94,7 +94,7 @@ function openTenantPortal() {
   const tenantPortalUrl = isDev
     ? 'http://localhost:3001'
     : url.format({
-        pathname: path.join(__dirname, '../tenant-portal-build/index.html'),
+        pathname: path.join(process.resourcesPath, 'tenant-portal-build/index.html'),
         protocol: 'file:',
         slashes: true
       });

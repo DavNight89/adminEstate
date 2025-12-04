@@ -133,9 +133,14 @@ const Login = ({ onLogin }) => {
                 />
                 <span className="ml-2 text-sm text-gray-600">Remember me</span>
               </label>
-              <a href="#" className="text-sm text-blue-600 hover:text-blue-700 font-medium">
-                Forgot password?
-              </a>
+<button
+onClick={() => {
+  alert('Feature not available in offline mode');
+}}
+className="text-sm text-blue-600 hover:text-blue-700"
+>
+Forgot password?
+</button>
             </div>
 
             {/* Submit Button */}

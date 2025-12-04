@@ -12,6 +12,7 @@
 # production
 /build
 /dist
+/tenant-portal-build
 
 # Python
 backend-python/venv/
